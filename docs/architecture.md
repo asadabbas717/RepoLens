@@ -1,8 +1,8 @@
 # Architecture and product contract
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
-The `domain`, acquisition `infrastructure` and orchestration `application`
-packages exist after Phase 3. Add further boundaries when implementations arrive.
+The `domain`, acquisition `infrastructure`, orchestration `application` and
+concrete `analyzers` packages exist after Phase 4. Add further boundaries when implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
@@ -64,10 +64,11 @@ requirement and maintenance/security review.
 protocol. `repository_source.py` owns URL/local validation, minimal source
 metadata and context-owned leases. `traversal.py` owns bounded no-content-read
 inventory, exclusions and no-link descent. `errors.py` defines sanitized source
-errors. Only infrastructure imports subprocess/filesystem APIs; the domain is
-unchanged. See [acquisition](acquisition.md) and ADR 0003 for exact semantics and
+errors. Only infrastructure performs subprocess/filesystem I/O; the domain
+contains no live filesystem access. See [acquisition](acquisition.md) and ADR 0003 for exact semantics and
 limitations. Application execution does not acquire sources or traverse files.
-Concrete analyzers and CLI remain unimplemented.
+Concrete hygiene analysis uses only an immutable path snapshot; CLI remains
+unimplemented.
 
 
 ## Orchestration boundary (Phase 3)
@@ -81,12 +82,30 @@ registered spec. Cross-result finding identities and rule categories are checked
 before acceptance, so invalid results cannot abort later report construction.
 
 The application depends only on domain contracts and the standard library.
-AnalysisContext remains repository display identity only. Acquisition stays
-explicitly caller-owned; leases and filesystem implementations do not enter the
-domain. Future static analyzers will need a separately justified safe data-access
-seam and lifetime model. That capability is not speculatively added here.
+Phase 4 extends AnalysisContext with optional FileInventory data; execution itself
+remains independent of that data shape. Acquisition stays caller-owned; leases
+and filesystem implementations never enter the domain.
 
 Execution returns an ordered tuple of AnalyzerResult values. Callers may compose
 AnalysisReport using plan.specs, those results and an explicit ScoringPolicy.
 The engine neither chooses policy scope nor scores or renders. See
 [orchestration](orchestration.md) for lifecycle and limitations.
+
+
+## Hygiene and repository data (Phase 4)
+
+FileInventory is a bounded immutable tuple of normalized relative POSIX paths,
+canonically ordered and validated without I/O. None inventory means unavailable;
+an empty inventory is an available observation. infrastructure.inventory builds
+context only after a complete traversal under an open lease. Partial/error
+inventories are never published. Detached data has no capability to read a root
+or former temporary workspace. Domain path validation is shared with Evidence.
+
+RepositoryHygieneAnalyzer consumes this data and an immutable typed rule catalog:
+RH001 observes no exact root .gitignore path in eligible inventory (INFO), and
+RH002 observes ASCII-only case-colliding full file paths (LOW). No tracking,
+commit, ignore-effectiveness, content or complete filesystem absence claim is
+made. Registration and execution still use the unchanged Phase 3 API, with no
+hygiene-specific orchestration logic or default scoring policy. See
+[repository data](repository-data.md), [hygiene rules](rules/repository-hygiene.md)
+and ADR 0004 for the boundary, eligibility limits and occurrence identities.

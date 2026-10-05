@@ -1,5 +1,6 @@
 """Immutable evidence, findings and analyzer lifecycle values."""
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import PurePosixPath, PureWindowsPath
@@ -58,11 +59,59 @@ class Repository:
         require_text(self.name, "repository name")
 
 
+MAX_INVENTORY_FILES = 20_000
+
+
+def require_relative_file_path(value: str) -> None:
+    """Validate a canonical relative POSIX location without performing I/O."""
+    if not isinstance(value, str):
+        raise ValueError("file_path must be a normalized relative POSIX file path")
+    path = PurePosixPath(value)
+    if (
+        not value
+        or "\\" in value
+        or "\x00" in value
+        or PureWindowsPath(value).drive
+        or path.is_absolute()
+        or ".." in path.parts
+        or path.as_posix() != value
+        or value == "."
+    ):
+        raise ValueError("file_path must be a normalized relative POSIX file path")
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class FileInventory:
+    """Completed eligible-file inventory; empty differs from unavailable.
+
+    Paths carry no access capability or claim of Git tracking. Infrastructure
+    enforces filesystem exclusions; this value validates bounded lexical data.
+    """
+
+    paths: tuple[str, ...]
+
+    def __init__(self, paths: Iterable[str]) -> None:
+        unique_paths: set[str] = set()
+        for value in paths:
+            if len(unique_paths) >= MAX_INVENTORY_FILES:
+                raise ValueError("File inventory exceeds its path limit")
+            require_relative_file_path(value)
+            if value in unique_paths:
+                raise ValueError("File inventory paths must be unique")
+            unique_paths.add(value)
+        object.__setattr__(self, "paths", tuple(sorted(unique_paths)))
+
+
 @dataclass(frozen=True, slots=True)
 class AnalysisContext:
-    """Minimal input contract, to gain safe repository data in later phases."""
+    """Immutable identity and optional bounded data; no filesystem capabilities."""
 
     repository: Repository
+    inventory: FileInventory | None = None
+
+    def __post_init__(self) -> None:
+        if self.inventory is not None and not isinstance(self.inventory, FileInventory):
+            raise ValueError("inventory must be a FileInventory or unavailable")
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,17 +129,7 @@ class Evidence:
     def __post_init__(self) -> None:
         require_text(self.description, "evidence description")
         if self.file_path is not None:
-            path = PurePosixPath(self.file_path)
-            if (
-                not self.file_path
-                or "\\" in self.file_path
-                or PureWindowsPath(self.file_path).drive
-                or path.is_absolute()
-                or ".." in path.parts
-                or path.as_posix() != self.file_path
-                or self.file_path == "."
-            ):
-                raise ValueError("file_path must be a normalized relative POSIX file path")
+            require_relative_file_path(self.file_path)
         if self.line_number is not None:
             if self.file_path is None:
                 raise ValueError("line_number requires file_path")

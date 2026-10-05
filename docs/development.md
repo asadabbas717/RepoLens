@@ -312,4 +312,47 @@ auditing found no known vulnerabilities, skipping unpublished RepoLens. Whitespa
 checks passed and the working tree was reviewed. Domain and infrastructure code,
 protocols, dependencies, lock entries and workflow gates are unchanged. No concrete
 analyzers, CLI, rendering, configuration or Phase 4 functionality were added.
-Phase 3 remains uncommitted; its hosted verification is pending publication.
+Phase 3 was subsequently published; its hosted verification is recorded below.
+
+
+## Phase 3 hosted verification (2026-10-06)
+
+[Quality run 37386215681](https://github.com/asadabbas717/RepoLens/actions/runs/37386215681)
+completed successfully for `28e7ffd9aca9a2106b80237efe79679453856e77`.
+All four Ubuntu/Windows and Python 3.13/3.14 jobs succeeded. This establishes
+hosted Phase 3 verification, not verification of the new Phase 4 changes.
+
+
+## Phase 4 local verification (2026-10-06)
+
+Windows/Python 3.13.15 passed locked sync, formatting, lint, strict mypy, tests,
+the existing Bandit gate, dependency audit and source/wheel builds. Of 295 tests,
+294 passed and one existing real symlink test skipped for Windows privileges.
+The 68 new cases cover bounded/normalized immutable inventory, catalog metadata,
+positive/negative/near-match hygiene signals, stable occurrence IDs, snapshot
+failure/lifetime handling, deterministic ordering and acquired-source composition.
+Total statement/branch coverage is 99.89%; statements, domain scoring, hygiene
+and the snapshot adapter remain at 100%. Traversal/Git controls and Phase 3
+orchestration code are unchanged.
+
+The existing documented test-owned basetemp workaround was used without changing
+assertions, warning handling or coverage gates:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase4-tmp --cov --cov-report=term-missing
+```
+
+The built wheel installed without dependencies in the isolated smoke environment;
+hygiene, inventory and application imports and a clean-inventory execution passed
+under isolated Python. Bandit retained its existing reviewed LOW subprocess import
+finding and targeted Git Popen suppression; no medium/high findings were reported.
+The advisory audit found no known vulnerabilities, skipping unpublished RepoLens.
+Whitespace checks passed and the working tree was reviewed. No dependency, lock,
+CI workflow or quality-gate changes were made. No target contents are read by the
+new analyzer and no target code is executed. Tests use inert controlled repositories
+and simulated remote copying, not live GitHub acquisition. Scoring policies remain
+explicit synthetic fixtures; no product weights or penalties were introduced.
+Phase 4 remains uncommitted; hosted verification is pending publication. No Python
+AST checks, target tool adapters, testing/security/CI analysis, CLI, rendering,
+configuration or Phase 5 functionality was added.

@@ -64,13 +64,14 @@ can block sequential execution; hostile analyzer plugins are unsupported.
 
 ## Acquisition, reports and future data access
 
-AnalysisContext stays at its Phase 1 contract: immutable repository display
-identity. Callers can explicitly acquire a source and pass lease.identity as
+The original Phase 3 AnalysisContext contract supplied display identity only.
+Phase 4 adds optional bounded FileInventory data while preserving identity-only
+callers. Callers can explicitly acquire a source and pass lease.identity as
 that identity, but the engine never starts or closes acquisition. It imports
 only domain APIs and the standard library; no infrastructure objects enter the
 domain. All Phase 2 path, lifetime and subprocess safeguards remain independent.
-Future concrete static checks will require a deliberately bounded repository
-data-access seam; Phase 3 does not guess that interface or introduce file reads.
+Future content analysis requires a separately justified bounded data-access seam; Phase 4 now supplies an immutable relative-path inventory, documented in
+[repository data](repository-data.md), without introducing content reads.
 
 Execution returns an immutable ordered tuple of AnalyzerResult values. For a
 scored snapshot, callers construct AnalysisReport(repository, plan.specs,

@@ -6,10 +6,11 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phases 0 through 3 provide packaging, development tooling, tests, CI, immutable
+Phases 0 through 4 provide packaging, development tooling, tests, CI, immutable
 domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
-deterministic sequential analyzer orchestration. No scanning command or concrete
-analyzer is implemented yet. The development version is `0.1.0.dev0`; this is
+deterministic sequential orchestration and a path-only repository-hygiene analyzer.
+It observes root ignore-policy paths and ASCII case collisions using bounded data.
+No scanning command is implemented yet. The development version is `0.1.0.dev0`; this is
 not a released product.
 
 ## Planned v1 scope
@@ -45,6 +46,8 @@ See [acquisition](docs/acquisition.md) for source lifetime, exclusions, Git
 isolation and practical safety limitations. The acquisition API is not an OS sandbox.
 See [orchestration](docs/orchestration.md) for registration, execution, failure
 isolation and explicit-policy report composition.
+See [repository data](docs/repository-data.md) for the analyzer-safe snapshot and
+[hygiene rules](docs/rules/repository-hygiene.md) for exact signals and limitations.
 
 ## Safety and limitations
 

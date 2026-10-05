@@ -11,7 +11,8 @@ Keep changes small enough to review and do not declare unavailable gates passed.
    metadata, ignore behavior, bounded traversal and cleanup integration tests.
 3. Orchestration: implemented explicit immutable plans, sequential execution,
    result ownership, failure isolation and status-preserving outcomes.
-4. Hygiene: first reliable repository rules with catalog and inert fixtures.
+4. Hygiene: implemented bounded path snapshots, two conservative catalogued
+   observations and inert acquired fixtures.
 5. Python: incremental AST checks and justified mature-tool adapters.
 6. Testing signals: static test presence/configuration, no claimed executed coverage.
 7. Security/dependencies: safe adapters, missing tools and normalized results.
@@ -29,7 +30,8 @@ Do not create placeholder analyzers or prematurely label a release 1.0.
 
 Phases 0–2 are complete, including the full hosted matrix for Phase 2 commit
 `b91b9d0` ([Quality run 37384103705](https://github.com/asadabbas717/RepoLens/actions/runs/37384103705)).
-Phase 3 adds application machinery only; no concrete analyzers are registered by
-default. Phase 4 will introduce the first repository hygiene rules, their catalog
-and inert controlled fixtures, with any required safe repository-data seam
-reviewed before concrete implementation.
+Phase 3 adds application machinery; analyzers remain explicitly registered. Phase 4 introduces the first repository hygiene rules, their typed catalog and
+inert controlled fixtures using a bounded path-only domain snapshot. Phase 5
+will add justified Python static/AST checks and mature-tool integrations where
+appropriate, after separately designing bounded content access. No Phase 5 code
+is present.
