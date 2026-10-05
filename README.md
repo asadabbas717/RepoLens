@@ -6,8 +6,9 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phase 0 provides packaging, development tooling, tests, CI, and architecture
-decisions. No scanning command or analyzer is implemented yet. The development
+Phases 0 and 1 provide packaging, development tooling, tests, CI, immutable
+domain models and explicit-policy scoring. No scanning command or concrete
+analyzer is implemented yet. The development
 version is `0.1.0.dev0`; this is not a released product.
 
 ## Planned v1 scope
@@ -38,6 +39,7 @@ uv run --locked pytest --cov --cov-report=term-missing
 See [development](docs/development.md) for all gates and Git recommendations,
 [architecture](docs/architecture.md) for boundaries and safety,
 and [roadmap](docs/roadmap.md) for milestones.
+See [scoring](docs/scoring.md) for outcome states, scope, arithmetic and limitations.
 
 ## Safety and limitations
 

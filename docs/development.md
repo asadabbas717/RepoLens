@@ -121,11 +121,24 @@ build) across Ubuntu/Python 3.13, Ubuntu/Python 3.14, Windows/Python 3.13 and
 Windows/Python 3.14. These are hosted results, not additional local runs.
 They establish foundation compatibility only, not future analyzer correctness.
 
-The Phase 0 hardening changes require a new hosted run after publication;
-the original successful run does not verify the changed lock or action pins.
+[Hardening Quality run 37355931792](https://github.com/asadabbas717/RepoLens/actions/runs/37355931792)
+subsequently passed all four matrix jobs for commit `6d51d51`, verifying the
+changed lock and immutable action pins. These prior runs do not verify Phase 1;
+its hosted results require a new run after publication.
 The hardening pass was verified locally on Windows/Python 3.13.15 with all
 the gates above, plus clean wheel installation/import. Two tests passed with
 100% foundation coverage; Bandit found no issues and dependency auditing found
 no known vulnerabilities, again skipping only the unpublished RepoLens package.
 The initial elevated test run encountered cache permissions; rerunning under
 the workspace account passed without changing warning or coverage settings.
+
+## Phase 1 local verification (2026-10-05)
+
+On Windows/Python 3.13.15, locked sync, format, lint, strict typing, all 64 unit
+tests, Bandit, dependency audit and source/wheel builds passed. Statement and
+branch coverage are 100% for the current domain/package code, including scoring.
+The wheel was reinstalled into the isolated smoke environment and all domain
+modules imported successfully. Git whitespace checks passed and the working
+tree was reviewed. No dependencies, lock entries or quality thresholds changed.
+The audit found no known vulnerabilities; the unpublished RepoLens package
+was not auditable through PyPI. Hosted Phase 1 CI has not run yet.

@@ -1,8 +1,8 @@
 # Architecture and product contract
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
-Only the package root exists during Phase 0; create responsibility-specific
-directories when real implementations arrive.
+The package root and pure `domain` package exist after Phase 1; create other
+responsibility-specific directories when real implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
@@ -31,14 +31,18 @@ logging must redact credentials. External analyzer adapters must be reviewed
 for configuration/plugin behavior before use against hostile input. In
 particular dependency auditing must not trigger target package installation.
 
-## Evidence and scoring contract (to implement in Phase 1)
+## Evidence and scoring contract (implemented in Phase 1)
 
 Findings include stable rule IDs, category, impact severity, explanation,
 source analyzer, remediation, and file/line evidence where applicable.
-Analysis results distinguish completed, skipped, unsupported, and failed.
-Failures never imply passed checks or a perfect score. Scoring must document
-penalties, caps, weights, applicability and uncertainty before implementation.
-No score or coverage percentage is invented in this foundation.
+Analysis results distinguish completed, skipped, unsupported, failed and
+explicitly non-applicable. Missing planned results remain unavailable. Failures
+never imply passed checks or a perfect score. The [scoring contract](scoring.md)
+defines explicit policies, per-rule deductions, caps, weights and uncertainty.
+No calibrated default penalties or runtime coverage estimates are invented.
+`models.py` owns domain values, `contracts.py` the analyzer protocol,
+`scoring.py` arithmetic and availability, and `report.py` a consistent scored
+snapshot. There is no analysis orchestration or report renderer yet.
 
 ## Main engineering risks
 
