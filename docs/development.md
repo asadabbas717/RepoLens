@@ -251,3 +251,25 @@ Local locked sync, formatting, lint, typing, tests, Bandit, audit and builds pas
 192 passed, one Windows symlink privilege skip, 99.87% combined coverage. Audit
 found no known vulnerabilities, skipping unpublished RepoLens. Hosted verification
 of this correction must complete before Phase 3 implementation begins.
+
+
+## Phase 2 capture-resource isolation refinement (2026-10-06)
+
+The capture-resource regression now uses real temporary binary files wrapped by
+a test-local context manager. It replaces only RepoLens's imported TemporaryFile
+factory and injects secret-bearing creation/cleanup errors there. No shared
+os.fstat patch remains, including the selective descriptor patch from the prior
+correction. Real descriptor size inspection and stdlib directory cleanup remain
+independent. Assertions verify sanitized GitFailed outcomes, suppressed raw
+exception context, both real streams closing and capture reaching subprocess
+execution before cleanup failure. Production code and security controls did not
+change.
+
+All established local gates passed on Windows/Python 3.13.15: locked sync,
+formatting, lint, strict typing, tests, Bandit, dependency audit and builds.
+Of 193 tests, 192 passed and one Windows symlink privilege test skipped; combined
+coverage is 99.87%, with 100% statement coverage. Tests used the documented
+workspace basetemp override. Bandit retains one reviewed LOW finding and no
+medium/high findings. Audit found no known vulnerabilities, skipping unpublished
+RepoLens. No Phase 3 code or later functionality was introduced. Hosted CI for
+this refinement has not run; local verification does not close hosted validation.

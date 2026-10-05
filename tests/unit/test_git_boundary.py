@@ -1,8 +1,10 @@
 """Exercise security construction and bounded subprocess lifecycle without network."""
 
-import os
 import subprocess
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
+from tempfile import TemporaryFile
 from typing import BinaryIO, cast
 from unittest.mock import MagicMock
 
@@ -156,35 +158,34 @@ def test_control_directory_errors_are_sanitized(
 def test_capture_file_resource_errors_are_sanitized(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cleanup: bool
 ) -> None:
-    stream = MagicMock()
-    stream.__enter__.return_value = stream
-    stream.fileno.return_value = -1
-    if cleanup:
-        stream.__exit__.side_effect = OSError("secret capture path")
-    factory = MagicMock(return_value=stream)
-    if not cleanup:
-        factory.side_effect = OSError("secret capture path")
+    streams: list[BinaryIO] = []
+
+    @contextmanager
+    def capture_file() -> Iterator[BinaryIO]:
+        if not cleanup:
+            raise OSError("secret capture path")
+        # Only RepoLens's imported factory is replaced. Real descriptors keep
+        # stream-size checks and stdlib temporary-directory cleanup independent.
+        with TemporaryFile() as resource:
+            stream = cast(BinaryIO, resource)
+            streams.append(stream)
+            yield stream
+            raise OSError("secret capture path")
+
     process = MagicMock()
     process.__enter__.return_value = process
     process.poll.return_value = 0
     process.returncode = 0
-    monkeypatch.setattr("repolens.infrastructure.git.TemporaryFile", factory)
-    monkeypatch.setattr(
-        "repolens.infrastructure.git.subprocess.Popen", MagicMock(return_value=process)
-    )
-    original_fstat = os.fstat
-
-    def capture_stat(descriptor: int) -> os.stat_result:
-        # Real temporary-directory cleanup also uses fstat on POSIX.
-        if descriptor == -1:
-            return os.stat_result((0,) * 10)
-        return original_fstat(descriptor)
-
-    monkeypatch.setattr("repolens.infrastructure.git.os.fstat", capture_stat)
-    with pytest.raises(GitFailed) as failure:
+    spawn = MagicMock(return_value=process)
+    monkeypatch.setattr("repolens.infrastructure.git.TemporaryFile", capture_file)
+    monkeypatch.setattr("repolens.infrastructure.git.subprocess.Popen", spawn)
+    with pytest.raises(GitFailed, match="execution or capture failed") as failure:
         GitRunner().run(("rev-parse", "--show-toplevel"), tmp_path, 10)
     assert "secret" not in str(failure.value)
     assert failure.value.__suppress_context__
+    assert all(stream.closed for stream in streams)
+    assert len(streams) == (2 if cleanup else 0)
+    assert spawn.call_count == (1 if cleanup else 0)
 
 
 @pytest.mark.parametrize("error_type", [GitUnavailable, GitTimedOut, GitFailed])
