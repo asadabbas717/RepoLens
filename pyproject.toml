@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "repolens"
+version = "0.1.0.dev0"
+description = "Evidence-based repository engineering-quality analysis"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "uv==0.12.23",
+    "pytest>=8",
+    "pytest-cov>=6",
+    "ruff>=0.11",
+    "mypy>=1.15",
+    "bandit>=1.8",
+    "pip-audit>=2.8",
+    "build>=1.2",
+    "setuptools>=77",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+repolens = ["py.typed"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-config --strict-markers"
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source = ["repolens"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
