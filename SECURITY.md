@@ -10,3 +10,9 @@ The core safety boundary is static analysis of untrusted input. Target code,
 tests, dependency installation and build scripts must never execute by default.
 Do not include real credentials in reports or reproductions. Security fixes
 require regression tests and review of affected acquisition/tool/rendering paths.
+
+Phase 2 uses isolated Git configuration and bounded capture with no target-code
+execution. See [acquisition safety](docs/acquisition.md) for exact controls and
+limits. Keep Git patched: its native parsers are part of the trusted boundary.
+Local concurrent writers, disk exhaustion, lingering transport helpers and
+OS-blocked cleanup are not fully isolated by this layer.

@@ -124,7 +124,7 @@ They establish foundation compatibility only, not future analyzer correctness.
 [Hardening Quality run 37355931792](https://github.com/asadabbas717/RepoLens/actions/runs/37355931792)
 subsequently passed all four matrix jobs for commit `6d51d51`, verifying the
 changed lock and immutable action pins. These prior runs do not verify Phase 1;
-its hosted results require a new run after publication.
+its hosted verification is recorded separately below.
 The hardening pass was verified locally on Windows/Python 3.13.15 with all
 the gates above, plus clean wheel installation/import. Two tests passed with
 100% foundation coverage; Bandit found no issues and dependency auditing found
@@ -141,7 +141,7 @@ The wheel was reinstalled into the isolated smoke environment and all domain
 modules imported successfully. Git whitespace checks passed and the working
 tree was reviewed. No dependencies, lock entries or quality thresholds changed.
 The audit found no known vulnerabilities; the unpublished RepoLens package
-was not auditable through PyPI. Hosted Phase 1 CI has not run yet.
+was not auditable through PyPI. These original local checks predated hosted CI.
 
 ## Phase 1 domain-integrity hardening verification (2026-10-05)
 
@@ -152,5 +152,39 @@ All 107 tests passed on Windows/Python 3.13.15 with 100% statement/branch covera
 Locked sync, formatting, lint, strict typing, Bandit, dependency audit and
 source/wheel builds passed. The audit found no known vulnerabilities, skipping
 the unpublished RepoLens package. No dependencies or quality gates changed;
-no Phase 2 functionality was introduced. Hosted verification of this hardening
-pass remains pending publication.
+no Phase 2 functionality was introduced. The subsequent
+[Quality run 37360390526](https://github.com/asadabbas717/RepoLens/actions/runs/37360390526)
+passed for commit `6f73243`, establishing hosted Phase 1/hardening verification.
+
+## Phase 2 verification (2026-10-06)
+
+Windows/Python 3.13.15 and Git 2.54.0.windows.1 passed locked synchronization,
+formatting, lint, strict typing, coverage tests, the established Bandit gate,
+dependency audit and source/wheel builds. Of 178 tests, 177 passed and one real
+symlink test was skipped because this Windows account cannot create symlinks.
+Separate tests exercise symlink/reparse metadata exclusion without that privilege.
+Total statement/branch coverage is 99.86%; domain scoring remains at 100%.
+The clean smoke environment successfully installed/imported the acquisition wheel.
+The advisory audit found no known vulnerabilities, skipping unpublished RepoLens.
+
+Bandit's expanded scan flags the subprocess import (B404, LOW); this was reviewed
+as necessary for the isolated Git boundary, not suppressed. The Popen call has
+a targeted B603 suppression with its absolute-executable/argument-array rationale
+beside the call. No shell is used. Medium/high security gates are unchanged.
+See [acquisition](acquisition.md) for the full security model and limitations.
+
+The local sandbox's shared pytest temporary directory was inaccessible. The
+same tests/gates ran using a test-owned workspace location; this changes only
+temporary storage, not assertions, warnings or coverage:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase2-tmp --cov --cov-report=term-missing
+```
+
+That location contains pytest-owned disposable fixtures only; pytest may clear
+it on repeat runs. Ordinary CI continues to use its normal temporary directory.
+There are no live-network acquisition tests. Public GitHub acquisition uses a
+simulated clone seam in tests, not an actual GitHub clone. Phase 2 hosted CI is
+pending publication. No runtime dependencies, domain contracts, lock entries,
+quality thresholds or CI workflow were changed. No Phase 3 functionality exists.

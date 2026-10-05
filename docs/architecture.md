@@ -1,8 +1,8 @@
 # Architecture and product contract
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
-The package root and pure `domain` package exist after Phase 1; create other
-responsibility-specific directories when real implementations arrive.
+The pure `domain` and acquisition `infrastructure` packages exist after Phase 2;
+create other responsibility-specific directories when implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
@@ -56,3 +56,13 @@ snapshot. There is no analysis orchestration or report renderer yet.
 There is no runtime dependency now. Typer/Rich, a safe YAML parser, and Jinja2
 remain candidates, not committed dependencies. Add each only with a concrete
 requirement and maintenance/security review.
+
+## Acquisition boundary (Phase 2)
+
+`infrastructure/git.py` owns isolated subprocess execution and its narrow test
+protocol. `repository_source.py` owns URL/local validation, minimal source
+metadata and context-owned leases. `traversal.py` owns bounded no-content-read
+inventory, exclusions and no-link descent. `errors.py` defines sanitized source
+errors. Only infrastructure imports subprocess/filesystem APIs; the domain is
+unchanged. See [acquisition](acquisition.md) and ADR 0003 for exact semantics and
+limitations. No orchestration, concrete analyzers or CLI are implemented.
