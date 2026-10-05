@@ -59,39 +59,42 @@ class GitRunner:
     def run(self, arguments: tuple[str, ...], cwd: Path, timeout: int) -> GitOutput:
         if type(timeout) is not int or timeout < 1:
             raise ValueError("Git timeout must be a positive integer")
-        with TemporaryDirectory(prefix="repolens-git-") as controls:
-            command = [
-                self._executable,
-                "-c",
-                f"core.hooksPath={controls}",
-                "-c",
-                f"init.templateDir={controls}",
-                "-c",
-                "core.fsmonitor=false",
-                "-c",
-                "credential.helper=",
-                "-c",
-                "protocol.allow=never",
-                "-c",
-                "protocol.https.allow=always",
-                "-c",
-                "http.followRedirects=false",
-                "-c",
-                "http.sslVerify=true",
-                "-c",
-                "submodule.recurse=false",
-                "-c",
-                "core.protectNTFS=true",
-                "-c",
-                "core.protectHFS=true",
-                *arguments,
-            ]
-            try:
-                return self._capture(command, cwd, timeout, controls)
-            except FileNotFoundError:
-                raise GitUnavailable("Git executable could not be started") from None
-            except OSError:
-                raise GitFailed("Git execution or capture failed") from None
+        try:
+            with TemporaryDirectory(prefix="repolens-git-") as controls:
+                command = [
+                    self._executable,
+                    "-c",
+                    f"core.hooksPath={controls}",
+                    "-c",
+                    f"init.templateDir={controls}",
+                    "-c",
+                    "core.fsmonitor=false",
+                    "-c",
+                    "credential.helper=",
+                    "-c",
+                    "protocol.allow=never",
+                    "-c",
+                    "protocol.https.allow=always",
+                    "-c",
+                    "http.followRedirects=false",
+                    "-c",
+                    "http.sslVerify=true",
+                    "-c",
+                    "submodule.recurse=false",
+                    "-c",
+                    "core.protectNTFS=true",
+                    "-c",
+                    "core.protectHFS=true",
+                    *arguments,
+                ]
+                try:
+                    return self._capture(command, cwd, timeout, controls)
+                except FileNotFoundError:
+                    raise GitUnavailable("Git executable could not be started") from None
+                except OSError:
+                    raise GitFailed("Git execution or capture failed") from None
+        except OSError:
+            raise GitFailed("Git temporary controls could not be created or cleaned up") from None
 
     def _capture(self, command: list[str], cwd: Path, timeout: int, home: str) -> GitOutput:
         # File-backed capture prevents arbitrary subprocess output consuming RAM.

@@ -81,7 +81,7 @@ def repository_files(
                     children.append(Path(entry.path))
             for path in sorted(children, reverse=True):
                 _ = lease.root
-                if _link_or_reparse(path):
+                if path.name == ".git" or _link_or_reparse(path):
                     continue
                 metadata = path.lstat()
                 if stat.S_ISDIR(metadata.st_mode):

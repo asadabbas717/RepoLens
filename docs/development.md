@@ -188,3 +188,29 @@ There are no live-network acquisition tests. Public GitHub acquisition uses a
 simulated clone seam in tests, not an actual GitHub clone. Phase 2 hosted CI is
 pending publication. No runtime dependencies, domain contracts, lock entries,
 quality thresholds or CI workflow were changed. No Phase 3 functionality exists.
+
+
+## Phase 2 acquisition hardening verification (2026-10-06)
+
+Local Windows/Python 3.13.15 verification passed locked sync, formatting, lint,
+strict typing, the established Bandit gate, dependency audit and source/wheel
+builds. Of 187 tests, 186 passed and one real symlink test was skipped for Windows
+privileges. Total statement/branch coverage is 99.87%; statements, Git execution,
+traversal and domain scoring remain at 100%. The same documented test-owned
+basetemp was used without changing assertions or quality thresholds.
+
+Real linked-worktree tests cover both repository-root and nested .git indirection
+files without reading their contents. Focused boundary tests cover secret-bearing
+control-directory and capture-file allocation/cleanup failures, plus preservation
+of existing Git error types. Exact .git entries are excluded regardless of type;
+Git-related working-tree filenames remain eligible. Remote workspace allocation
+and cleanup already have sanitized errors and retain their existing regression
+coverage. Cleanup failure may supersede an earlier error and cannot guarantee
+physical removal when the OS refuses it.
+
+The audit found no known vulnerabilities, skipping unpublished RepoLens. Bandit
+retains its reviewed low-severity subprocess import finding and existing targeted
+Popen suppression; no medium/high findings were reported. No dependencies, domain
+contracts, security controls or gates changed. These checks are local; this
+hardening pass is uncommitted and has no hosted CI verification yet. No Phase 3
+functionality was started.

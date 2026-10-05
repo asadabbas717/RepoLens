@@ -2,6 +2,7 @@
 
 import subprocess
 from pathlib import Path
+from types import SimpleNamespace
 from typing import BinaryIO, cast
 from unittest.mock import MagicMock
 
@@ -130,3 +131,60 @@ def test_output_limits_terminate_excess_and_never_retain_raw_diagnostics(
 def test_timeout_must_be_positive_integer(tmp_path: Path, timeout: int) -> None:
     with pytest.raises(ValueError):
         GitRunner().run(("rev-parse", "--show-toplevel"), tmp_path, timeout)
+
+
+@pytest.mark.parametrize("cleanup", [False, True])
+def test_control_directory_errors_are_sanitized(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cleanup: bool
+) -> None:
+    controls = MagicMock()
+    controls.__enter__.return_value = str(tmp_path)
+    if cleanup:
+        controls.__exit__.side_effect = OSError("secret control path")
+    factory = MagicMock(return_value=controls)
+    if not cleanup:
+        factory.side_effect = OSError("secret control path")
+    monkeypatch.setattr("repolens.infrastructure.git.TemporaryDirectory", factory)
+    monkeypatch.setattr(GitRunner, "_capture", MagicMock())
+    with pytest.raises(GitFailed, match="temporary controls") as failure:
+        GitRunner().run(("rev-parse", "--show-toplevel"), tmp_path, 10)
+    assert "secret" not in str(failure.value)
+    assert failure.value.__suppress_context__
+
+
+@pytest.mark.parametrize("cleanup", [False, True])
+def test_capture_file_resource_errors_are_sanitized(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cleanup: bool
+) -> None:
+    stream = MagicMock()
+    stream.__enter__.return_value = stream
+    if cleanup:
+        stream.__exit__.side_effect = OSError("secret capture path")
+    factory = MagicMock(return_value=stream)
+    if not cleanup:
+        factory.side_effect = OSError("secret capture path")
+    process = MagicMock()
+    process.__enter__.return_value = process
+    process.poll.return_value = 0
+    process.returncode = 0
+    monkeypatch.setattr("repolens.infrastructure.git.TemporaryFile", factory)
+    monkeypatch.setattr(
+        "repolens.infrastructure.git.subprocess.Popen", MagicMock(return_value=process)
+    )
+    monkeypatch.setattr(
+        "repolens.infrastructure.git.os.fstat",
+        MagicMock(return_value=SimpleNamespace(st_size=0)),
+    )
+    with pytest.raises(GitFailed) as failure:
+        GitRunner().run(("rev-parse", "--show-toplevel"), tmp_path, 10)
+    assert "secret" not in str(failure.value)
+    assert failure.value.__suppress_context__
+
+
+@pytest.mark.parametrize("error_type", [GitUnavailable, GitTimedOut, GitFailed])
+def test_control_boundary_preserves_git_error_types(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, error_type: type[GitFailed | GitUnavailable]
+) -> None:
+    monkeypatch.setattr(GitRunner, "_capture", MagicMock(side_effect=error_type("sanitized")))
+    with pytest.raises(error_type, match="sanitized"):
+        GitRunner().run(("rev-parse", "--show-toplevel"), tmp_path, 10)

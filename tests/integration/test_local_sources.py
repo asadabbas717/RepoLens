@@ -79,8 +79,9 @@ def test_unborn_worktree_is_supported_without_claiming_commit(tmp_path: Path) ->
         assert lease.commit_sha is None
 
 
-def test_linked_git_worktree_is_supported(local_repo: Path, tmp_path: Path) -> None:
-    worktree = tmp_path / "worktree"
+@pytest.mark.parametrize("nested", [False, True])
+def test_linked_git_worktree_is_supported(local_repo: Path, tmp_path: Path, nested: bool) -> None:
+    worktree = (local_repo if nested else tmp_path) / "worktree"
     assert (
         GitRunner()
         .run(("worktree", "add", "--detach", "--quiet", str(worktree)), local_repo, 10)
@@ -90,6 +91,11 @@ def test_linked_git_worktree_is_supported(local_repo: Path, tmp_path: Path) -> N
     with RepositorySource().local(worktree) as lease:
         assert lease.root == worktree.resolve()
         assert lease.commit_sha is not None
+        assert (worktree / ".git").is_file()
+        assert set(repository_files(lease)) == {Path("README.md")}
+    if nested:
+        with RepositorySource().local(local_repo) as lease:
+            assert set(repository_files(lease)) == {Path("README.md"), Path("worktree/README.md")}
 
 
 def test_default_exclusions_size_and_virtual_environments(local_repo: Path) -> None:
@@ -220,3 +226,17 @@ def test_spaces_and_unicode_paths_resolve_without_shell_quoting(tmp_path: Path) 
     assert GitRunner().run(("init", "--quiet"), root, 10).returncode == 0
     with RepositorySource().local(root) as lease:
         assert lease.root == root.resolve()
+
+
+def test_git_named_working_files_are_not_broadly_excluded(local_repo: Path) -> None:
+    (local_repo / "nested").mkdir()
+    for name in (".gitignore", ".gitattributes", ".gitmodules", ".github", "nested/.git"):
+        (local_repo / name).touch()
+    with RepositorySource().local(local_repo) as lease:
+        assert set(repository_files(lease)) == {
+            Path("README.md"),
+            Path(".gitignore"),
+            Path(".gitattributes"),
+            Path(".gitmodules"),
+            Path(".github"),
+        }

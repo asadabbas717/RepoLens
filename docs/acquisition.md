@@ -91,12 +91,14 @@ Both streams use anonymous temporary file capture instead of unbounded memory.
 The runner checks their size while waiting, stops Git on observed excess of
 65,536 bytes per stream, and retains no more than that stdout bound. Stderr is
 captured for flow control but never propagated. There is no command/output
-logging. Git failures, timeouts and invalid metadata use sanitized messages.
+logging. Git failures, timeouts and invalid metadata use sanitized messages. Allocation
+and cleanup failures for Git control directories and capture files are sanitized
+Git errors; raw OS diagnostics are suppressed. Cleanup failure can supersede
+an earlier operation error, since cleanup itself did not complete.
 
 Remote workspaces use TemporaryDirectory inside the acquisition context.
 Remote metadata must resolve to the exact clone destination, not its parent or
-another ancestor. Cleanup
-is attempted in finally on success, clone failure, timeout, metadata failure and
+another ancestor. Cleanup is attempted in finally on success, clone failure, timeout, metadata failure and
 consumer exceptions; the lease closes before cleanup. Allocation/cleanup failures
 are explicit AcquisitionError values, not hidden successes. Consumer exceptions
 propagate unchanged when cleanup succeeds. Local context exit closes the lease
@@ -114,12 +116,18 @@ size of the current tree. Do not use this layer as a hostile-process sandbox.
 ## Inventory and exclusions
 
 repository_files yields relative pathlib.Paths and reads no target contents.
-It excludes .git, .venv, venv, env, .venv-* directories, node_modules, build,
+Every entry named exactly .git is excluded at any depth regardless of its type,
+including repository-root and nested linked-worktree
+indirection files and links/reparse points, without reading its contents.
+At any depth, it excludes directories named .git, .venv, venv, env, node_modules, build,
+and .venv-* directories,
 dist, __pycache__, .pytest_cache, .mypy_cache, .ruff_cache, .uv-cache, htmlcov,
 and directories containing a pyvenv.cfg marker. These are RepoLens performance
 and safety exclusions, not Git ignore semantics or configurable user patterns.
 The integration tests explicitly show that .gitignore alone does not remove a
-file from inventory. No ignore parser/dependency is introduced.
+file from inventory. Working-tree files such as .gitignore, .gitattributes and .gitmodules remain
+eligible; the exclusion does not match name prefixes. No ignore
+parser/dependency is introduced.
 
 Default bounds are 20,000 visited entries, directory depth 32 (root depth 0),
 and 2 MiB per regular file. Entry/depth excess raises TraversalLimitExceeded;
