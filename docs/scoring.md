@@ -24,6 +24,10 @@ source ownership and remediation; results validate their category and source.
 
 Severity levels describe impact, in ascending order:
 
+Enum declaration/iteration order defines this hierarchy. Penalty monotonicity
+and highest-severity selection both use it; lexical string ordering is never
+used for impact. A regression test fixes the deliberate ordering contract.
+
 | Severity | Intended meaning |
 | --- | --- |
 | INFO | Context or an observation without a quality deduction |
@@ -97,8 +101,30 @@ MEDIUM rule costs 10, leaving 65. These are examples, not shipped defaults.
 AnalysisReport keeps repository display identity, planned analyzer metadata,
 results, policy and derived scores together. It computes its score on
 construction; callers cannot inject a score inconsistent with its inputs.
-Score dataclasses are derived output containers: obtain them from this report
-or score_repository, rather than manually assembling an assessment.
+Score constructors now validate value-object integrity even when called
+directly. Obtain policy-derived assessments from this report or score_repository.
+
+RuleDeduction requires a nonblank rule ID, real Severity, integer points in
+0..100, and nonempty unique nonblank finding IDs. INFO deductions must be zero.
+CategoryScore validates Category/ScoreState, requires integer values in 0..100
+only for ASSESSED, and rejects numbers for other states. Analyzer groups must
+contain unique nonblank IDs and be disjoint. Assessed work needs completed
+analyzers and no unavailable work; non-applicable work needs only non-applicable
+analyzers. Incomplete work needs unavailable analyzers or an entirely empty plan.
+Deductions need completed work, unique rules and nonoverlapping finding IDs.
+
+RepositoryScore requires a nonempty unique category scope. Analyzer, rule and
+finding identities must not conflict across categories. Numeric overall values
+must be finite Decimal values in 0..100 with exactly two decimal places, without
+incomplete categories and with at least one assessed category. Complete assessed
+scope needs a numeric overall value. Overall numbers cannot fall outside the
+assessed category minimum/maximum. Collections are copied to immutable tuples.
+
+These are structural and availability invariants, not policy recalculation.
+Constructors do not recompute category penalties or the weighted mean: the
+policy is not part of these value objects. A structurally valid manually supplied
+number is not evidence that policy arithmetic was followed; AnalysisReport and
+score_repository remain the trusted derivation path.
 
 100 means no penalized findings in completed declared scope. It is not proof
 of security, runtime correctness, executed test coverage or comprehensive

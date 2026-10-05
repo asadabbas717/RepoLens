@@ -66,12 +66,34 @@ class ScoreState(StrEnum):
     NOT_APPLICABLE = "not_applicable"
 
 
+def _unique_identifiers(values: tuple[str, ...], field: str) -> tuple[str, ...]:
+    identifiers = tuple(values)
+    for identifier in identifiers:
+        require_text(identifier, field)
+    if len(set(identifiers)) != len(identifiers):
+        raise ValueError(f"{field} must be unique")
+    return identifiers
+
+
 @dataclass(frozen=True, slots=True)
 class RuleDeduction:
     rule_id: str
     severity: Severity
     points: int
     finding_ids: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        require_text(self.rule_id, "rule_id")
+        require_enum(self.severity, Severity, "severity")
+        if type(self.points) is not int or not 0 <= self.points <= 100:
+            raise ValueError("deduction points must be integers between 0 and 100")
+        if self.severity == Severity.INFO and self.points != 0:
+            raise ValueError("INFO deductions must have zero points")
+        object.__setattr__(
+            self, "finding_ids", _unique_identifiers(self.finding_ids, "finding IDs")
+        )
+        if not self.finding_ids:
+            raise ValueError("a deduction requires finding IDs")
 
 
 @dataclass(frozen=True, slots=True)
@@ -84,11 +106,107 @@ class CategoryScore:
     unavailable_analyzers: tuple[str, ...]
     non_applicable_analyzers: tuple[str, ...]
 
+    def __post_init__(self) -> None:
+        require_enum(self.category, Category, "category")
+        require_enum(self.state, ScoreState, "state")
+        object.__setattr__(self, "deductions", tuple(self.deductions))
+        groups = (
+            ("completed_analyzers", self.completed_analyzers),
+            ("unavailable_analyzers", self.unavailable_analyzers),
+            ("non_applicable_analyzers", self.non_applicable_analyzers),
+        )
+        memberships: set[str] = set()
+        for field, identifiers in groups:
+            identifiers = _unique_identifiers(identifiers, field)
+            if memberships.intersection(identifiers):
+                raise ValueError("analyzer memberships must be disjoint")
+            memberships.update(identifiers)
+            object.__setattr__(self, field, identifiers)
+        if self.state == ScoreState.ASSESSED:
+            if type(self.value) is not int or not 0 <= self.value <= 100:
+                raise ValueError("assessed values must be integers between 0 and 100")
+            if not self.completed_analyzers or self.unavailable_analyzers:
+                raise ValueError(
+                    "assessed categories require completed work and no unavailable work"
+                )
+        else:
+            if self.value is not None:
+                raise ValueError("unassessed categories must not have numeric values")
+            if self.state == ScoreState.NOT_APPLICABLE:
+                if (
+                    self.completed_analyzers
+                    or self.unavailable_analyzers
+                    or not self.non_applicable_analyzers
+                ):
+                    raise ValueError("non-applicable categories require only non-applicable work")
+            elif memberships and not self.unavailable_analyzers:
+                raise ValueError("incomplete categories require unavailable work or an empty plan")
+        if self.deductions and not self.completed_analyzers:
+            raise ValueError("deductions require completed analyzer work")
+        _unique_identifiers(tuple(item.rule_id for item in self.deductions), "deduction rule IDs")
+        _unique_identifiers(
+            tuple(identifier for item in self.deductions for identifier in item.finding_ids),
+            "deduction finding IDs",
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class RepositoryScore:
     categories: tuple[CategoryScore, ...]
     value: Decimal | None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "categories", tuple(self.categories))
+        if not self.categories:
+            raise ValueError("repository scores require a declared category scope")
+        if len({item.category for item in self.categories}) != len(self.categories):
+            raise ValueError("score categories must be unique")
+        _unique_identifiers(
+            tuple(
+                identifier
+                for item in self.categories
+                for identifier in (
+                    *item.completed_analyzers,
+                    *item.unavailable_analyzers,
+                    *item.non_applicable_analyzers,
+                )
+            ),
+            "repository analyzer IDs",
+        )
+        _unique_identifiers(
+            tuple(rule.rule_id for item in self.categories for rule in item.deductions),
+            "repository rule IDs",
+        )
+        _unique_identifiers(
+            tuple(
+                identifier
+                for item in self.categories
+                for rule in item.deductions
+                for identifier in rule.finding_ids
+            ),
+            "repository finding IDs",
+        )
+        assessed = [item.value for item in self.categories if item.value is not None]
+        incomplete = any(item.state == ScoreState.INCOMPLETE for item in self.categories)
+        if self.value is None:
+            if assessed and not incomplete:
+                raise ValueError("complete assessed scope requires an overall value")
+        else:
+            if (
+                not isinstance(self.value, Decimal)
+                or not self.value.is_finite()
+                or not 0 <= self.value <= 100
+                or self.value.as_tuple().exponent != -2
+            ):
+                raise ValueError(
+                    "overall value must be a finite Decimal in 0..100 with two decimals"
+                )
+            if incomplete or not assessed:
+                raise ValueError(
+                    "numeric overall values require assessed scope without incomplete work"
+                )
+            if not min(assessed) <= self.value <= max(assessed):
+                raise ValueError("overall value must lie within assessed category bounds")
 
 
 def score_repository(
@@ -98,8 +216,8 @@ def score_repository(
 ) -> RepositoryScore:
     """Score declared scope; unavailable work blocks category and overall values.
 
-    Score outputs are derived snapshots. Their constructors are data containers;
-    consumers should obtain them through this function or AnalysisReport.
+    Constructors validate structural integrity; only this function evaluates
+    policy arithmetic. Use this function or AnalysisReport for derived scores.
     """
     planned = {spec.identifier: spec for spec in plan}
     if len(planned) != len(plan):

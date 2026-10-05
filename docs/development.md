@@ -142,3 +142,15 @@ modules imported successfully. Git whitespace checks passed and the working
 tree was reviewed. No dependencies, lock entries or quality thresholds changed.
 The audit found no known vulnerabilities; the unpublished RepoLens package
 was not auditable through PyPI. Hosted Phase 1 CI has not run yet.
+
+## Phase 1 domain-integrity hardening verification (2026-10-05)
+
+Direct score constructors now enforce structural invariants independently of
+policy calculation. The 43 added test cases cover invalid direct construction,
+valid boundaries, collection immutability and the deliberate severity hierarchy.
+All 107 tests passed on Windows/Python 3.13.15 with 100% statement/branch coverage.
+Locked sync, formatting, lint, strict typing, Bandit, dependency audit and
+source/wheel builds passed. The audit found no known vulnerabilities, skipping
+the unpublished RepoLens package. No dependencies or quality gates changed;
+no Phase 2 functionality was introduced. Hosted verification of this hardening
+pass remains pending publication.

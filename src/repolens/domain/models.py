@@ -6,7 +6,10 @@ from pathlib import PurePosixPath, PureWindowsPath
 
 
 class Severity(StrEnum):
-    """Impact levels; INFO carries no scoring penalty."""
+    """Impact levels in ascending declaration order; INFO carries no penalty.
+
+    Scoring uses enum iteration order, never lexical string comparisons.
+    """
 
     INFO = "info"
     LOW = "low"
@@ -35,8 +38,8 @@ class AnalyzerState(StrEnum):
 
 def require_text(value: str, field: str) -> None:
     """Reject empty required text without silently changing producer data."""
-    if not value.strip():
-        raise ValueError(f"{field} must not be blank")
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{field} must be a nonblank string")
 
 
 def require_enum(value: StrEnum, enum_type: type[StrEnum], field: str) -> None:
