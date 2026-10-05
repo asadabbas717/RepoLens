@@ -107,6 +107,12 @@ class RepositorySource:
         return self._git
 
     def _metadata(self, directory: Path) -> tuple[Path, str | None]:
+        try:
+            directory = directory.resolve(strict=True)
+        except (OSError, RuntimeError):
+            raise InvalidSource(
+                "Repository metadata directory is missing or inaccessible"
+            ) from None
         output = self.git.run(
             ("-c", "protocol.https.allow=never", "rev-parse", "--show-toplevel"), directory, 10
         )
@@ -182,7 +188,11 @@ class RepositorySource:
             if result.returncode:
                 raise GitFailed("Public GitHub clone failed; check availability and access")
             resolved, sha = self._metadata(root)
-            if resolved != root.resolve():
+            try:
+                destination = root.resolve(strict=True)
+            except (OSError, RuntimeError):
+                raise GitFailed("Clone destination is missing or inaccessible") from None
+            if resolved != destination:
                 raise GitFailed("Git returned an unexpected clone root")
             lease = RepositoryLease(
                 resolved,

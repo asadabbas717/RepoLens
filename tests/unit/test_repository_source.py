@@ -228,3 +228,70 @@ def test_remote_metadata_cannot_expand_inventory_beyond_clone_root(tmp_path: Pat
     ):
         pytest.fail("escaping clone root yielded")
     assert fake.workspace is not None and not fake.workspace.exists()
+
+
+@pytest.mark.parametrize("location", ["root", "subdirectory", "unrelated"])
+def test_metadata_canonicalizes_short_path_alias_before_containment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, location: str
+) -> None:
+    # Model Windows 8.3 resolution without depending on a volume's 8.3 policy
+    # or runner username. Only the alias resolution is replaced; containment
+    # uses real pathlib paths and real directories on every platform.
+    root = (tmp_path / "long repository name").resolve()
+    root.mkdir()
+    directory = root if location == "root" else root / "child"
+    directory.mkdir(exist_ok=True)
+    alias = tmp_path / "LONGRE~1"
+    returned = root
+    if location == "unrelated":
+        returned = tmp_path / "unrelated"
+        returned.mkdir()
+    original_resolve = type(alias).resolve
+
+    def resolve(path: Path, strict: bool = False) -> Path:
+        if path == alias:
+            assert strict
+            return directory
+        return original_resolve(path, strict=strict)
+
+    monkeypatch.setattr(type(alias), "resolve", resolve)
+    git = MetadataGit((GitOutput(0, str(returned).encode("utf-8")), GitOutput(1, b"")))
+    if location == "unrelated":
+        with pytest.raises(GitFailed, match="inconsistent repository root"):
+            RepositorySource(git)._metadata(alias)
+    else:
+        assert RepositorySource(git)._metadata(alias) == (root, None)
+
+
+@pytest.mark.parametrize("inaccessible", [False, True])
+def test_metadata_input_resolution_failure_is_sanitized(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, inaccessible: bool
+) -> None:
+    directory = tmp_path / "missing"
+    if inaccessible:
+        monkeypatch.setattr(type(directory), "resolve", MagicMock(side_effect=OSError("secret")))
+    with pytest.raises(InvalidSource, match="missing or inaccessible") as failure:
+        RepositorySource(MetadataGit(()))._metadata(directory)
+    assert "secret" not in str(failure.value)
+    assert failure.value.__suppress_context__
+
+
+def test_disappearing_clone_destination_is_sanitized(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fixture = tmp_path / "fixture"
+    init_fixture(fixture)
+    fake = SimulatedClone(fixture)
+
+    def metadata(source: RepositorySource, directory: Path) -> tuple[Path, None]:
+        canonical = directory.resolve(strict=True)
+        shutil.rmtree(directory)
+        return canonical, None
+
+    monkeypatch.setattr(RepositorySource, "_metadata", metadata)
+    with (
+        pytest.raises(GitFailed, match="destination is missing or inaccessible"),
+        RepositorySource(fake).github("https://github.com/o/r"),
+    ):
+        pytest.fail("missing destination yielded")
+    assert fake.workspace is not None and not fake.workspace.exists()

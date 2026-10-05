@@ -214,3 +214,27 @@ Popen suppression; no medium/high findings were reported. No dependencies, domai
 contracts, security controls or gates changed. These checks are local; this
 hardening pass is uncommitted and has no hosted CI verification yet. No Phase 3
 functionality was started.
+
+
+## Phase 2 canonical-root correction (2026-10-06)
+
+Hosted Windows/Python 3.13 CI for `dbb975d` exposed three remote-source test
+failures caused by comparing an incoming short-path alias with Git's resolved
+long-path root. `_metadata` now resolves its input strictly before Git inspection
+and containment checks. Remote equality also strictly resolves the exact clone
+destination; missing/inaccessible paths produce sanitized errors.
+
+Local checks passed locked sync, format, lint, strict typing, coverage tests,
+the existing Bandit gate, dependency audit and source/wheel builds. Of 193 tests,
+192 passed and one Windows symlink privilege test skipped. Statement coverage
+is 100%; combined statement/branch coverage is 99.87%. Alias-resolution unit
+cases cover equivalent roots, subdirectories and unrelated roots without assuming
+8.3 support or a runner username. Existing real Git integration tests, simulated
+remote success/consumer cleanup and the final unexpected-clone-root regression
+remain green. Missing/inaccessible inputs and a disappearing clone destination
+have focused sanitized-error tests.
+
+The audit found no known vulnerabilities, skipping unpublished RepoLens. Bandit
+retains its reviewed LOW subprocess import finding, with no medium/high findings.
+No dependencies, gates, security controls or Phase 3 functionality changed. This
+correction remains uncommitted; hosted verification of the correction is pending.

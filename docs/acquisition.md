@@ -15,7 +15,9 @@ are supported; Git's .git indirection file is legitimate for linked worktrees.
 Symlinked/junction Git metadata is rejected. Files, missing/inaccessible paths,
 non-Git directories, bare repositories and invalid root metadata are rejected.
 Git's ownership protections are preserved; we do not inject safe.directory
-exceptions for target repositories. Git metadata must be UTF-8-decodable.
+exceptions for target repositories. Git metadata must be UTF-8-decodable. Metadata input directories and Git-returned
+roots are resolved strictly before containment comparisons, including Windows
+short-path aliases. A local input must lie within the resolved Git root.
 
 Local sources are live working-tree views, not copied snapshots: tracked,
 modified, untracked and Git-ignored files are eligible for inventory unless
@@ -98,7 +100,8 @@ an earlier operation error, since cleanup itself did not complete.
 
 Remote workspaces use TemporaryDirectory inside the acquisition context.
 Remote metadata must resolve to the exact clone destination, not its parent or
-another ancestor. Cleanup is attempted in finally on success, clone failure, timeout, metadata failure and
+another ancestor. The clone destination is also resolved strictly for equality;
+missing or inaccessible destinations fail safely. Cleanup is attempted in finally on success, clone failure, timeout, metadata failure and
 consumer exceptions; the lease closes before cleanup. Allocation/cleanup failures
 are explicit AcquisitionError values, not hidden successes. Consumer exceptions
 propagate unchanged when cleanup succeeds. Local context exit closes the lease
