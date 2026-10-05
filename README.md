@@ -6,11 +6,11 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phases 0 through 2 provide packaging, development tooling, tests, CI, immutable
-domain models, explicit-policy scoring and local/public-GitHub acquisition APIs.
-No scanning command or concrete
-analyzer is implemented yet. The development
-version is `0.1.0.dev0`; this is not a released product.
+Phases 0 through 3 provide packaging, development tooling, tests, CI, immutable
+domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
+deterministic sequential analyzer orchestration. No scanning command or concrete
+analyzer is implemented yet. The development version is `0.1.0.dev0`; this is
+not a released product.
 
 ## Planned v1 scope
 
@@ -43,6 +43,8 @@ and [roadmap](docs/roadmap.md) for milestones.
 See [scoring](docs/scoring.md) for outcome states, scope, arithmetic and limitations.
 See [acquisition](docs/acquisition.md) for source lifetime, exclusions, Git
 isolation and practical safety limitations. The acquisition API is not an OS sandbox.
+See [orchestration](docs/orchestration.md) for registration, execution, failure
+isolation and explicit-policy report composition.
 
 ## Safety and limitations
 

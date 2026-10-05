@@ -186,8 +186,8 @@ That location contains pytest-owned disposable fixtures only; pytest may clear
 it on repeat runs. Ordinary CI continues to use its normal temporary directory.
 There are no live-network acquisition tests. Public GitHub acquisition uses a
 simulated clone seam in tests, not an actual GitHub clone. Phase 2 hosted CI is
-pending publication. No runtime dependencies, domain contracts, lock entries,
-quality thresholds or CI workflow were changed. No Phase 3 functionality exists.
+recorded below for the final hardened Phase 2 commit. No runtime dependencies,
+domain contracts, lock entries, quality thresholds or CI workflow were changed. No Phase 3 functionality exists.
 
 
 ## Phase 2 acquisition hardening verification (2026-10-06)
@@ -212,8 +212,8 @@ The audit found no known vulnerabilities, skipping unpublished RepoLens. Bandit
 retains its reviewed low-severity subprocess import finding and existing targeted
 Popen suppression; no medium/high findings were reported. No dependencies, domain
 contracts, security controls or gates changed. These checks are local; this
-hardening pass is uncommitted and has no hosted CI verification yet. No Phase 3
-functionality was started.
+hardening pass was subsequently published; final hosted verification is recorded
+below. No Phase 3 functionality was introduced by that pass.
 
 
 ## Phase 2 canonical-root correction (2026-10-06)
@@ -237,7 +237,7 @@ have focused sanitized-error tests.
 The audit found no known vulnerabilities, skipping unpublished RepoLens. Bandit
 retains its reviewed LOW subprocess import finding, with no medium/high findings.
 No dependencies, gates, security controls or Phase 3 functionality changed. This
-correction remains uncommitted; hosted verification of the correction is pending.
+correction was published; final hosted verification is recorded below.
 
 
 ## Phase 2 POSIX capture-test correction (2026-10-06)
@@ -250,7 +250,7 @@ original OS function. Assertions, production code and quality gates are unchange
 Local locked sync, formatting, lint, typing, tests, Bandit, audit and builds passed:
 192 passed, one Windows symlink privilege skip, 99.87% combined coverage. Audit
 found no known vulnerabilities, skipping unpublished RepoLens. Hosted verification
-of this correction must complete before Phase 3 implementation begins.
+of the final refinement is recorded below.
 
 
 ## Phase 2 capture-resource isolation refinement (2026-10-06)
@@ -272,4 +272,44 @@ coverage is 99.87%, with 100% statement coverage. Tests used the documented
 workspace basetemp override. Bandit retains one reviewed LOW finding and no
 medium/high findings. Audit found no known vulnerabilities, skipping unpublished
 RepoLens. No Phase 3 code or later functionality was introduced. Hosted CI for
-this refinement has not run; local verification does not close hosted validation.
+this refinement is recorded below; local checks alone did not close validation.
+
+
+## Phase 2 hosted closure (2026-10-06)
+
+[Quality run 37384103705](https://github.com/asadabbas717/RepoLens/actions/runs/37384103705)
+completed successfully for `b91b9d05e35528c6a651cd3fd9a7f59576f3c87d`.
+All four jobs succeeded: Ubuntu/Python 3.13, Ubuntu/Python 3.14,
+Windows/Python 3.13 and Windows/Python 3.14. This verifies the final acquisition
+hardening, canonical-root correction and capture-test isolation refinement.
+Phase 2 is closed. It does not constitute hosted verification of Phase 3 changes.
+
+
+## Phase 3 local verification (2026-10-06)
+
+Windows/Python 3.13.15 passed locked synchronization, formatting, lint, strict
+mypy, all tests, the existing Bandit gate, dependency audit and source/wheel
+builds. Of 227 tests, 226 passed and one existing real symlink test skipped for
+Windows privileges. The 34 new cases cover registration, all result states,
+metadata snapshots, ordering, ordinary exception isolation, cancellation,
+result ownership, cross-result conflicts and domain-report/acquisition composition.
+Combined statement/branch coverage is 99.88%; statements and the new orchestration
+module's branches are 100%. Domain scoring remains at 100%.
+
+The documented workspace basetemp workaround was used with unchanged assertions,
+warning handling and coverage gates:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase3-tmp --cov --cov-report=term-missing
+```
+
+The wheel was installed without dependencies into the isolated smoke environment;
+application imports and empty-plan execution passed under isolated Python.
+Bandit reported no medium/high findings; the existing reviewed LOW subprocess
+import finding and targeted Git Popen suppression remain unchanged. Dependency
+auditing found no known vulnerabilities, skipping unpublished RepoLens. Whitespace
+checks passed and the working tree was reviewed. Domain and infrastructure code,
+protocols, dependencies, lock entries and workflow gates are unchanged. No concrete
+analyzers, CLI, rendering, configuration or Phase 4 functionality were added.
+Phase 3 remains uncommitted; its hosted verification is pending publication.
