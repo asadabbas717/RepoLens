@@ -1,8 +1,8 @@
 """Exercise security construction and bounded subprocess lifecycle without network."""
 
+import os
 import subprocess
 from pathlib import Path
-from types import SimpleNamespace
 from typing import BinaryIO, cast
 from unittest.mock import MagicMock
 
@@ -158,6 +158,7 @@ def test_capture_file_resource_errors_are_sanitized(
 ) -> None:
     stream = MagicMock()
     stream.__enter__.return_value = stream
+    stream.fileno.return_value = -1
     if cleanup:
         stream.__exit__.side_effect = OSError("secret capture path")
     factory = MagicMock(return_value=stream)
@@ -171,10 +172,15 @@ def test_capture_file_resource_errors_are_sanitized(
     monkeypatch.setattr(
         "repolens.infrastructure.git.subprocess.Popen", MagicMock(return_value=process)
     )
-    monkeypatch.setattr(
-        "repolens.infrastructure.git.os.fstat",
-        MagicMock(return_value=SimpleNamespace(st_size=0)),
-    )
+    original_fstat = os.fstat
+
+    def capture_stat(descriptor: int) -> os.stat_result:
+        # Real temporary-directory cleanup also uses fstat on POSIX.
+        if descriptor == -1:
+            return os.stat_result((0,) * 10)
+        return original_fstat(descriptor)
+
+    monkeypatch.setattr("repolens.infrastructure.git.os.fstat", capture_stat)
     with pytest.raises(GitFailed) as failure:
         GitRunner().run(("rev-parse", "--show-toplevel"), tmp_path, 10)
     assert "secret" not in str(failure.value)

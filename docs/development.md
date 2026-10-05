@@ -238,3 +238,16 @@ The audit found no known vulnerabilities, skipping unpublished RepoLens. Bandit
 retains its reviewed LOW subprocess import finding, with no medium/high findings.
 No dependencies, gates, security controls or Phase 3 functionality changed. This
 correction remains uncommitted; hosted verification of the correction is pending.
+
+
+## Phase 2 POSIX capture-test correction (2026-10-06)
+
+The Ubuntu/Python 3.14 job in Quality run 37369946743 failed two capture-resource
+regressions: their global fstat mock returned size-only metadata to POSIX
+TemporaryDirectory cleanup, which requires inode/device metadata. The mock now
+handles only the fake capture descriptor and delegates real descriptors to the
+original OS function. Assertions, production code and quality gates are unchanged.
+Local locked sync, formatting, lint, typing, tests, Bandit, audit and builds passed:
+192 passed, one Windows symlink privilege skip, 99.87% combined coverage. Audit
+found no known vulnerabilities, skipping unpublished RepoLens. Hosted verification
+of this correction must complete before Phase 3 implementation begins.
