@@ -28,8 +28,8 @@ Python 3.13+ and Git are required. Use the latest security patch of your Python
 minor version. Install uv once in a bootstrap environment:
 
 ```bash
-python -m venv .venv
-source .venv/Scripts/activate
+python -m venv .venv-bootstrap
+source .venv-bootstrap/Scripts/activate
 python -m pip install uv==0.12.23
 uv sync --locked --group dev
 uv run --locked pytest --cov --cov-report=term-missing
