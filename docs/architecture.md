@@ -2,7 +2,7 @@
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
 The `domain`, acquisition `infrastructure`, orchestration `application` and
-concrete `analyzers` packages exist after Phase 6. Add further boundaries when implementations arrive.
+concrete `analyzers` packages exist after Phase 7. Add further boundaries when implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
@@ -126,7 +126,7 @@ PythonStaticAnalyzer requests 3.13 grammar, parses each file once and walks its
 AST once for bare except and non-stub wildcard import observations. Unsupported
 parsing discards partial findings; an empty available source set is non-applicable,
 while unavailable data is failed. Orchestration and scoring are unchanged. No
-external target adapters, target imports or security analysis exist. See
+target imports or execution exist. Phase 7 adds a detached security adapter. See
 [Python source](python-source.md), [Python rules](rules/python.md) and
 ADR 0005 for the resource, encoding, grammar and race limitations.
 
@@ -140,3 +140,21 @@ A tiny pure python_ast module shares Phase 5 grammar/warning policy while keepin
 analyzers independent. Orchestration, scoring and acquisition are unchanged.
 Testing configuration is not interpreted and target coverage is not measured.
 See [testing rules](rules/testing.md) for exact shapes, IDs and unavailable states.
+
+
+## Security tools and dependency data (Phase 7)
+
+PythonSecurityAnalyzer consumes detached source and a narrow domain BanditScan
+contract. Infrastructure owns optional pinned Bandit, temporary materialization,
+fixed controls, filtered process environment, deadlines, captures and schema
+normalization. Security observations contain only rule/severity/location, never
+vendor source or diagnostics. Git execution remains a separate specialized boundary.
+
+DependencyManifestSnapshot admits two bounded root UTF-8 files; context validation
+requires exact eligible inventory membership. An opt-in combined source/manifest
+builder inventories once. The private verified_read module preserves existing
+source checks for both builders. Pure domain declaration parsing supports only
+static exact pins; DependencyAuditAnalyzer exposes unavailable vulnerability
+auditing honestly. No resolver, target pip invocation, severity invention or
+scoring default is added. See [security rules](rules/security.md),
+[dependency audit](dependency-audit.md) and ADR 0006 for explicit limits.

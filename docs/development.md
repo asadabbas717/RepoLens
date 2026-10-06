@@ -455,6 +455,61 @@ pure parser preserves Phase 5 policy. Configuration contents are not interpreted
 no target code runs and target coverage is not measured. Whitespace and scope
 review passed. No Phase 7 security/dependency adapters or later work was added.
 
-Phase 6 remains uncommitted. Local Windows checks do not establish hosted Linux
-verification; the full hosted Windows/Ubuntu Python 3.13/3.14 matrix is still a
-closure requirement after publication.
+Phase 6 was subsequently published and verified by the hosted matrix below.
+
+
+## Phase 6 hosted verification (2026-10-06)
+
+[Quality run 37449614765](https://github.com/asadabbas717/RepoLens/actions/runs/37449614765)
+completed successfully for `4b47fcf938bd1d8fe17adfe2a68201e421dddb50`.
+All four Windows/Ubuntu Python 3.13/3.14 jobs succeeded. This closes Phase 6;
+it does not establish hosted verification of uncommitted Phase 7 changes.
+
+
+## Phase 7 local verification (2026-10-06)
+
+Locked synchronization, Ruff formatting/lint, strict mypy, the existing Bandit
+gate, dependency audit and source/wheel builds passed. Both Windows CPython
+3.13.15 and 3.14.7 ran the full 606-case suite: 605 passed, with the existing
+real-symlink privilege case skipped. Statement/branch coverage was 99.41% on
+3.13 and 99.50% on 3.14. Both new analyzers, the manifest/declaration/observation
+values, domain scoring and the factored verified-read primitive are fully covered.
+The 159 added cases exercise schema/exit validation, paths, severity/confidence,
+deterministic IDs, secrets, optional tools, grammar/resource failures, environment
+filtering, Linux loader reconstruction, process deadlines/reaping, both output
+caps, temporary-resource failures, origin exclusion, static manifest syntax and
+acquired-source/report composition. Existing read regressions retain their
+assertions with private seams redirected to the extracted read module.
+
+The established sandbox basetemp workaround and separate coverage storage were
+retained without changing assertions, warnings or thresholds:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase7-release-check --cov --cov-report=term-missing
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase7-py314.coverage uv run --locked --python 3.14 pytest --basetemp=.pytest_cache/phase7-py314-release-check --cov --cov-report=term-missing
+```
+
+Bandit 1.9.4 and pip-audit 2.10.1 help and installed formatter/CLI code were
+inspected locally. A pinned pip-audit detached exact-pin no-pip dry run completed;
+it is not advisory audit evidence. The normal tests use simulated vendor output
+and one real locked Bandit fixture, with no network dependency. Inert targets
+never execute, target configuration cannot suppress the Bandit observation, and
+source/environment secrets remain absent from context representations, results,
+reports and sanitized errors. The owned temporary-storage exclusion is checked
+before allocation and the scan works after its origin disappears.
+
+Bandit reported zero medium/high findings; its two LOW subprocess imports are
+reviewed and the two targeted B603 suppressions cover trusted absolute Git/Python
+launches with application-built arrays. No blanket suppression or gate change was
+introduced. Audit found no known vulnerabilities and skipped unpublished RepoLens.
+The wheel installed without dependencies in the isolated smoke environment;
+missing optional Bandit produced UNSUPPORTED as designed. No dependency, lock,
+workflow, Git runner, orchestration, scoring arithmetic or severity changes were
+made. Whitespace and scope review passed. No Phase 8 functionality was added.
+
+Phase 7 is uncommitted. Local Windows checks do not establish the hosted
+Windows/Ubuntu Python 3.13/3.14 matrix; that remains a closure requirement after
+publication. Target vulnerability auditing is intentionally deferred because
+native pip-audit advisory JSON lacks structured impact severity. This limitation
+is visible as UNSUPPORTED, never a clean security result.

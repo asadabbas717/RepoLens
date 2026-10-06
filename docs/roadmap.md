@@ -17,7 +17,8 @@ Keep changes small enough to review and do not declare unavailable gates passed.
    mature-tool target adapters are deliberately deferred.
 6. Testing signals: implemented conservative filename/AST advisories; configuration
    interpretation deferred, no claimed executed coverage.
-7. Security/dependencies: safe adapters, missing tools and normalized results.
+7. Security/dependencies: implemented detached optional Bandit and bounded direct
+   declarations; vulnerability auditing deferred for missing structured severity.
 8. CI/CD: safely parse GitHub Actions and state runtime inference limitations.
 9. Scoring calibration: documented sample fixtures and regression tests.
 10. CLI: help, validation and defined success/gate/input/internal-error exit codes.
@@ -37,4 +38,6 @@ inert controlled fixtures using a bounded path-only domain snapshot. Phase 5
 adds bounded decoded-source data and bare-except/wildcard-import observations,
 with reviewed read/encoding/grammar limits. Phase 6 adds static testing
 structure advisories without running target tests or claiming executed coverage.
-Phase 7 will evaluate safe security/dependency adapters; none are implemented.
+Phase 7 adds reviewed optional detached Bandit and bounded root dependency
+declarations; pip-audit target execution remains deferred with explicit unsupported
+outcomes. Phase 8 will analyze GitHub Actions safely; no Phase 8 code is present.

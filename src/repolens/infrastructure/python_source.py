@@ -1,14 +1,11 @@
 """Read selected Python files under an active lease with bounded verified reads."""
 
 import io
-import os
-import stat
 import tokenize
 from dataclasses import dataclass
-from pathlib import Path
 
+from repolens.domain.dependency_manifest import MANIFEST_PATHS, MAX_MANIFEST_BYTES
 from repolens.domain.models import AnalysisContext, FileInventory
-from repolens.domain.paths import require_relative_file_path
 from repolens.domain.python_source import (
     MAX_SOURCE_FILE_BYTES,
     MAX_SOURCE_FILES,
@@ -17,14 +14,14 @@ from repolens.domain.python_source import (
     PythonSourceSnapshot,
     is_python_path,
 )
+from repolens.infrastructure.dependency_manifest import _snapshot_manifests
 from repolens.infrastructure.errors import AcquisitionError
 from repolens.infrastructure.repository_source import RepositoryLease
 from repolens.infrastructure.traversal import (
     TraversalLimits,
-    _excluded_directory,
-    _link_or_reparse,
     repository_file_sizes,
 )
+from repolens.infrastructure.verified_read import _read_verified
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,66 +42,8 @@ class PythonSourceLimits:
                 )
 
 
-def _checked_path(lease: RepositoryLease, relative: str) -> tuple[Path, os.stat_result]:
-    require_relative_file_path(relative)
-    root = lease.root
-    path = root
-    components = ("", *relative.split("/"))
-    for index, component in enumerate(components):
-        path = path / component
-        if _link_or_reparse(path):
-            raise AcquisitionError("Python source path became a link or reparse point")
-        if index < len(components) - 1:
-            if not stat.S_ISDIR(path.lstat().st_mode):
-                raise AcquisitionError("Python source parent is no longer a directory")
-            if index and _excluded_directory(path):
-                raise AcquisitionError("Python source parent became excluded")
-    if not path.resolve(strict=True).is_relative_to(root):
-        raise AcquisitionError("Python source path escaped the repository")
-    metadata = path.lstat()
-    if not stat.S_ISREG(metadata.st_mode):
-        raise AcquisitionError("Python source is no longer a regular file")
-    return path, metadata
-
-
-def _signature(metadata: os.stat_result) -> tuple[int, int, int, int]:
-    # Windows pathname and descriptor ctime can disagree for unchanged files.
-    return metadata.st_dev, metadata.st_ino, metadata.st_size, metadata.st_mtime_ns
-
-
 def _read_source(lease: RepositoryLease, relative: str, limit: int) -> bytes:
-    path, before = _checked_path(lease, relative)
-    if before.st_size > limit:
-        raise AcquisitionError("Python source file byte limit exceeded")
-    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
-    flags |= getattr(os, "O_BINARY", 0)
-    descriptor = os.open(path, flags)
-    try:
-        opened = os.fstat(descriptor)
-        if not stat.S_ISREG(opened.st_mode) or _signature(opened) != _signature(before):
-            raise AcquisitionError("Python source changed before reading")
-        _checked_path(lease, relative)
-        remaining = limit + 1
-        chunks: list[bytes] = []
-        while remaining:
-            block = os.read(descriptor, min(remaining, 65_536))
-            if not block:
-                break
-            chunks.append(block)
-            remaining -= len(block)
-        raw = b"".join(chunks)
-        after = os.fstat(descriptor)
-        _, current = _checked_path(lease, relative)
-        if (
-            len(raw) > limit
-            or len(raw) != opened.st_size
-            or _signature(after) != _signature(opened)
-            or _signature(current) != _signature(opened)
-        ):
-            raise AcquisitionError("Python source changed or exceeded its byte limit")
-        return raw
-    finally:
-        os.close(descriptor)
+    return _read_verified(lease, relative, limit)
 
 
 def _decode_source(raw: bytes) -> str:
@@ -119,6 +58,8 @@ def snapshot_python_context(
     lease: RepositoryLease,
     limits: PythonSourceLimits | None = None,
     traversal_limits: TraversalLimits | None = None,
+    *,
+    include_dependency_manifests: bool = False,
 ) -> AnalysisContext:
     """Inventory once, then read selected files; publish no partial data on error."""
     limits = limits or PythonSourceLimits()
@@ -127,9 +68,14 @@ def snapshot_python_context(
     try:
         paths: list[str] = []
         selected: list[tuple[str, int]] = []
+        manifests: list[tuple[str, int]] = []
         raw_total = 0
         for relative, size in repository_file_sizes(lease, traversal_limits):
             name = relative.as_posix()
+            if include_dependency_manifests and name in MANIFEST_PATHS:
+                if size > min(MAX_MANIFEST_BYTES, traversal_limits.max_file_bytes):
+                    raise AcquisitionError("Dependency manifest byte limit exceeded")
+                manifests.append((name, size))
             if is_python_path(name):
                 if size > min(limits.max_file_bytes, traversal_limits.max_file_bytes):
                     raise AcquisitionError("Python source file byte limit exceeded")
@@ -157,6 +103,11 @@ def snapshot_python_context(
                 raise AcquisitionError("Decoded Python source aggregate byte limit exceeded")
             files.append(PythonSourceFile(name, text))
         _ = lease.root
-        return AnalysisContext(lease.identity, inventory, PythonSourceSnapshot(files))
+        manifest_snapshot = (
+            _snapshot_manifests(lease, manifests) if include_dependency_manifests else None
+        )
+        return AnalysisContext(
+            lease.identity, inventory, PythonSourceSnapshot(files), manifest_snapshot
+        )
     except (OSError, ValueError, RuntimeError):
         raise AcquisitionError("Python source snapshot could not be created") from None

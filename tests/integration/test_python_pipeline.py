@@ -13,6 +13,7 @@ from repolens.domain.python_source import PythonSourceSnapshot
 from repolens.domain.report import AnalysisReport
 from repolens.domain.scoring import CategoryWeight, ScoringPolicy, SeverityPenalty
 from repolens.infrastructure import python_source as boundary
+from repolens.infrastructure import verified_read as read_boundary
 from repolens.infrastructure.errors import AcquisitionError
 from repolens.infrastructure.git import GitRunner
 from repolens.infrastructure.python_source import PythonSourceLimits, snapshot_python_context
@@ -209,7 +210,7 @@ def test_replacements_between_inventory_and_read_fail_safely(
             (folder / "pyvenv.cfg").touch()
         else:
             linked = target if replacement == "link" else folder
-            monkeypatch.setattr(boundary, "_link_or_reparse", lambda path: path == linked)
+            monkeypatch.setattr(read_boundary, "_link_or_reparse", lambda path: path == linked)
         return original(lease, relative, limit)
 
     with RepositorySource().local(repository) as lease:
@@ -230,7 +231,7 @@ def test_source_change_during_read_is_detected(
 ) -> None:
     target = repository / "file.py"
     target.write_bytes(b"pass")
-    original = boundary._checked_path
+    original = read_boundary._checked_path
     calls = 0
 
     def checked(lease: RepositoryLease, relative: str) -> tuple[Path, os.stat_result]:
@@ -241,7 +242,7 @@ def test_source_change_during_read_is_detected(
         return original(lease, relative)
 
     with RepositorySource().local(repository) as lease:
-        monkeypatch.setattr(boundary, "_checked_path", checked)
+        monkeypatch.setattr(read_boundary, "_checked_path", checked)
         with pytest.raises(AcquisitionError, match="changed or exceeded"):
             snapshot_python_context(lease, PythonSourceLimits(max_file_bytes=5))
 
@@ -318,14 +319,14 @@ def test_open_descriptor_must_match_checked_file_identity(
     target.write_bytes(b"pass")
     peer = repository / "peer.txt"
     peer.write_bytes(b"pass")
-    original = boundary._checked_path
+    original = read_boundary._checked_path
 
     def checked(lease: RepositoryLease, relative: str) -> tuple[Path, os.stat_result]:
         path, _ = original(lease, relative)
         return path, peer.lstat()
 
     with RepositorySource().local(repository) as lease:
-        monkeypatch.setattr(boundary, "_checked_path", checked)
+        monkeypatch.setattr(read_boundary, "_checked_path", checked)
         with pytest.raises(AcquisitionError, match="changed before reading"):
             snapshot_python_context(lease)
     target.unlink()  # Windows also verifies that the opened descriptor was closed.

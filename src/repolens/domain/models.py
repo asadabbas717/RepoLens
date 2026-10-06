@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 
+from repolens.domain.dependency_manifest import MANIFEST_PATHS, DependencyManifestSnapshot
 from repolens.domain.paths import require_relative_file_path as require_relative_file_path
 from repolens.domain.python_source import PythonSourceSnapshot, is_python_path
 
@@ -93,6 +94,7 @@ class AnalysisContext:
     repository: Repository
     inventory: FileInventory | None = None
     python_sources: PythonSourceSnapshot | None = None
+    dependency_manifests: DependencyManifestSnapshot | None = None
 
     def __post_init__(self) -> None:
         if self.inventory is not None and not isinstance(self.inventory, FileInventory):
@@ -103,6 +105,15 @@ class AnalysisContext:
             expected = tuple(path for path in self.inventory.paths if is_python_path(path))
             if tuple(source.path for source in self.python_sources.files) != expected:
                 raise ValueError("Python source paths must exactly match selected inventory paths")
+        if self.dependency_manifests is not None:
+            if (
+                not isinstance(self.dependency_manifests, DependencyManifestSnapshot)
+                or self.inventory is None
+            ):
+                raise ValueError("Manifest data requires a valid snapshot and inventory")
+            expected = tuple(path for path in self.inventory.paths if path in MANIFEST_PATHS)
+            if tuple(entry.path for entry in self.dependency_manifests.files) != expected:
+                raise ValueError("Manifest paths must exactly match supported inventory paths")
 
 
 @dataclass(frozen=True, slots=True)
