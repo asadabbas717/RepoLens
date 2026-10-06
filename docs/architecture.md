@@ -20,7 +20,7 @@ avoid interfaces for ordinary internal functions.
 
 ## Safety requirements
 
-Never execute target code by default: no import, install, pytest, build, hooks,
+Never execute target code: no import, install, pytest, build, hooks,
 or shell scripts. Treat filenames, content, URLs, and tool output as untrusted.
 Validate exact public GitHub HTTPS repository URLs before acquisition. Use
 argument arrays without a shell, timeouts, controlled Git configuration, and

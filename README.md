@@ -1,8 +1,9 @@
 # RepoLens
 
-RepoLens is a Python repository engineering-quality analyzer under development.
-It aims to produce deterministic findings backed by file and line evidence,
-with transparent scoring and recommendations.
+RepoLens statically assesses Python Git repositories and language-independent
+repository hygiene and GitHub Actions signals. It produces deterministic findings
+with relative file/line evidence, recommendations and transparent score deductions.
+The development build is `0.1.0.dev0`; it is not a published release.
 
 ## Current status
 
@@ -39,20 +40,28 @@ exit 1. Dependency auditing is intentionally outside the default five-analyzer
 plan. See [CLI](docs/cli.md) for source forms, install, gate and exit codes.
 The development version is `0.1.0.dev0`; this is
 not a released product.
-Phase 11 hosted verification passed all four jobs. Phase 12 hosted verification
-remains pending publication.
+Phase 12 hosted verification passed all four Windows/Linux Python 3.13/3.14 jobs
+for `faca921`. Phase 13 validates these capabilities through owned fixtures,
+installed-wheel scans and a manual public example; see [dogfooding](docs/dogfooding.md).
 
-## Planned v1 scope
+## Implemented assessment scope
 
 - Local Git repositories and public HTTPS GitHub repositories.
 - Python-specific static analysis and language-independent repository checks.
-- Hygiene, documentation, testing signals, security, dependencies, and GitHub Actions.
+- Root ignore-policy path and ASCII case-collision observations.
+- Python bare-except/wildcard-import observations, conventional testing advisories,
+  optional Bandit 1.9.4 security observations and three static GitHub Actions rules.
 - Evidence-based category scores that distinguish failed, skipped, and unavailable checks.
 - Console, versioned JSON, and standalone HTML reports from one typed report model.
 - Validated TOML configuration and severity-based CI quality gates.
 
 Private repositories, target-code execution, other language-specific analyzers,
 AI services, web servers, and databases are outside v1.
+Documentation and Maintainability analysis and target dependency vulnerability
+auditing are not implemented assessment capabilities. Target tests/coverage are
+not executed or measured; GitHub Actions checks are not comprehensive validation.
+Earlier planned documentation-analysis wording is superseded by this implemented
+scope; Phase 14 will not invent missing analyzers to fill categories.
 
 ## Development setup (Git Bash on Windows)
 
@@ -81,12 +90,13 @@ uv run --locked repolens scan "C:/projects/example" --fail-under 85.50
 Target code is never executed. Normal findings do not fail a complete assessment
 without a requested gate; incomplete work always returns exit 1.
 
-Report choices after setup (examples, not a claim of self-dogfooding):
+Local/public acquisition and report choices after setup:
 
 ```bash
 uv run --locked repolens scan .
 uv run --locked repolens scan . --format json
 uv run --locked repolens scan . --format html --output repolens-report.html
+uv run --locked repolens scan https://github.com/pallets/itsdangerous --format json
 ```
 
 HTML requires a new output path; existing files are never overwritten. Incomplete
@@ -116,7 +126,7 @@ for source limits, encoding, grammar, lifecycle and evidence semantics.
 
 RepoLens will analyze potentially hostile input statically. It will not install
 target dependencies, import target modules, run tests, or execute repository
-scripts by default. Detected tests are not executed coverage. Static evidence
+scripts. Detected tests are not executed coverage. Static evidence
 cannot establish runtime correctness or prove a repository is secure.
 
 ## Contributing and license

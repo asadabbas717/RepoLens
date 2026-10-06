@@ -32,7 +32,7 @@ Keep changes small enough to review and do not declare unavailable gates passed.
     full hosted matrix verified after publication.
 12. Configuration: implemented explicit bounded schema-1 TOML, literal exclusions,
     exact rule controls and score/severity gates with transparent applied metadata;
-    hosted verification remains required after publication.
+    full hosted matrix verified for `faca921` in Quality run 37509070101.
 13. Dogfooding: self-scan plus clean/poor/non-Python fixtures and a public example.
 14. Release: all gates, audit, clean install, smoke test, docs and owner-selected license.
 
@@ -64,4 +64,7 @@ Phase 11 projects one report into three formats without changing scoring or
 analysis; its four hosted jobs passed for `e8f412a635559012ee32df2479966780b9bf6825`
 in [Quality run 37501851987](https://github.com/asadabbas717/RepoLens/actions/runs/37501851987).
 Phase 12 adds explicit user configuration without implicit target trust or policy
-mutation. Phase 13 will perform controlled dogfooding; no Phase 13 code exists.
+mutation; all four hosted jobs passed in
+[Quality run 37509070101](https://github.com/asadabbas717/RepoLens/actions/runs/37509070101).
+Phase 13 adds owned inert fixture validation and manual product evidence, documented
+in [dogfooding](dogfooding.md). Its hosted matrix remains required after publication.

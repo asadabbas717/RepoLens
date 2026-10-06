@@ -810,3 +810,44 @@ Scope review confirms unchanged scoring policy, analyzer plan and security
 boundaries. No dogfooding or Phase 13 functionality was added. These changes are
 uncommitted: Phase 12 hosted CI remains pending, so the milestone is not yet closed.
 See [configuration](configuration.md) for exact contracts and known limitations.
+
+## Phase 12 hosted verification (2026-10-06)
+
+All four jobs in
+[Quality run 37509070101](https://github.com/asadabbas717/RepoLens/actions/runs/37509070101)
+completed successfully for `faca9217ab47cb90b8e9fa477c82face5675e5c9`:
+Windows/Ubuntu with Python 3.13/3.14. The earlier pending statement records local
+verification before publication; this hosted evidence closes Phase 12.
+
+## Phase 13 local verification (2026-10-06)
+
+21 new network-independent real-product cases collected with the existing suite:
+1,179 total, 1,178 passed and one existing real-symlink privilege skip on both
+Windows CPython 3.13.15 and 3.14.7. Combined statement/branch coverage was 99.62%
+and 99.58%, respectively. Existing thresholds and warning gates were unchanged.
+The dedicated Phase 13 group also passed independently (21 cases).
+
+Locked synchronization passed for both isolated project environments. Ruff
+format/check and strict mypy passed (87 source/test files). Bandit -r src -ll
+found zero medium/high issues; the unchanged reviewed LOW imports and targeted
+launch suppressions remain. The locked development pip-audit found no known
+vulnerabilities, skipping only unpublished RepoLens. Wheel and source builds,
+installed-wheel fixture checks and whitespace checks passed. No source, dependency,
+lock, scoring policy, analyzer plan or security threshold changed.
+
+Installed wheel checks deliberately used only runtime dependencies and optional
+supported Bandit plus its dependencies, with no development tools. Bandit-absent
+and non-Python applicability outcomes were exercised separately. Self-scan and
+public acquisition evidence, marker absence, exact rule deductions, deterministic
+repeats, triage and limitations are recorded in [dogfooding](dogfooding.md).
+
+Git Bash coverage commands (the usual sandbox-owned basetemp workaround):
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase13-full --cov --cov-report=term-missing
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase13-py314.coverage uv run --locked --python 3.14 pytest --basetemp=.pytest_cache/phase13-py314 --cov --cov-report=term-missing
+```
+
+Phase 13 remains uncommitted and requires all four hosted jobs after publication
+before closure. No Phase 14 release work, license or visibility change occurred.
