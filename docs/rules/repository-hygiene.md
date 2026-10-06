@@ -73,8 +73,9 @@ invented for this simple universally observable inventory contract.
 Register the analyzer explicitly with AnalyzerPlan and pass snapshot_context's
 result to execute_analyzers. Orchestration ownership and exception isolation are
 unchanged. AnalysisReport composition still requires an explicit scoring policy;
-no product penalties, weights, calibrated scores or default registration are added.
-All policies in the test suite are synthetic.
+no rule-specific penalties or default registration are added. Phase 9 supplies a
+separate explicit [product policy](../scoring-calibration.md); earlier hygiene
+mechanism tests retain their synthetic policies.
 
 The analyzer builds in-memory membership and collision indexes over the bounded
 inventory, with canonical sorting for deterministic output. It does not rewalk

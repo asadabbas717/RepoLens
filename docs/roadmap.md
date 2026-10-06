@@ -21,7 +21,9 @@ Keep changes small enough to review and do not declare unavailable gates passed.
    declarations; vulnerability auditing deferred for missing structured severity.
 8. CI/CD: implemented bounded non-constructing GitHub Actions YAML and three
    static observations; runtime inference remains deliberately unavailable.
-9. Scoring calibration: documented sample fixtures and regression tests.
+9. Scoring calibration: implemented explicit python-static-v1 values, documented
+   neutral reference fixtures, sensitivity and exact policy regression tests;
+   hosted closure requires publication and a successful full matrix.
 10. CLI: help, validation and defined success/gate/input/internal-error exit codes.
 11. Reporting: console, versioned JSON and escaped standalone accessible HTML.
 12. Configuration: validated TOML, exclusions, rule controls and thresholds.
@@ -42,4 +44,9 @@ structure advisories without running target tests or claiming executed coverage.
 Phase 7 adds reviewed optional detached Bandit and bounded root dependency
 declarations; pip-audit target execution remains deferred with explicit unsupported
 outcomes. Phase 8 adds bounded GitHub Actions data and conservative static observations.
-Phase 9 will calibrate scoring with reviewed fixtures; no Phase 9 code is present.
+Phase 8 hosted verification passed all four jobs for `8fcb449` in
+[Quality run 37464126457](https://github.com/asadabbas717/RepoLens/actions/runs/37464126457).
+Phase 9 adds a five-category heuristic product policy without changing scoring
+mechanics or analyzer severities. Documentation/maintainability and dependency
+vulnerability auditing remain unassessed/unavailable as documented. Phase 10
+will add CLI composition and defined exit behavior; no Phase 10 code is present.

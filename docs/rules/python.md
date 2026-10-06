@@ -79,5 +79,6 @@ source composition and two precisely stated observations. It does not attempt
 Ruff parity, sophisticated analysis or a competing lint framework. A broader
 mature-tool adapter is deferred until it adds concrete value warranting reviewed
 executable/configuration/cache/output/timeout controls. Ruff remains a project
-quality tool, not a target adapter. No runtime dependency or default scoring
-policy is added; report-composition tests use explicit synthetic numbers only.
+quality tool, not a target adapter. The analyzer selects no scoring policy;
+Phase 9 supplies separate explicit [product values](../scoring-calibration.md).
+Earlier mechanism tests retain their synthetic numbers.

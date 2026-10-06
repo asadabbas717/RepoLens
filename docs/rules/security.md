@@ -106,5 +106,6 @@ timeout, diagnostic or validation failures yield sanitized FAILED, distinguished
 through typed failure kinds and RepoLens-controlled reasons (timeout, output limit,
 invalid output, diagnostics or execution/resources), never raw exception messages. Unsupported tool
 availability yields UNSUPPORTED. All unavailable states retain incomplete scoring;
-no production weights or penalties are supplied. A completed static scan, or a
-synthetic score, cannot establish that a repository is secure or exploitable.
+the analyzer selects no weights or penalties. Phase 9's separate explicit
+[product policy](../scoring-calibration.md) preserves these states. A completed
+static scan or a numeric score cannot establish that a repository is secure or exploitable.

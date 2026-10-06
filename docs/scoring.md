@@ -1,18 +1,36 @@
-# Domain scoring contract
+# Scoring contract and product policy
 
-Phase 1 implements scoring mechanics, not calibrated product penalties. No
-default scoring policy is supplied. A caller must provide a named immutable
-ScoringPolicy with one penalty for each severity and a positive integer weight
-for each category it intends to assess. Tests use synthetic numbers only.
-Product penalty selection/calibration belongs to Phase 9 and requires evidence,
-documented rationale and regression tests. There is no configuration loader yet.
+Phase 1 supplies generic mechanics; Phase 9 supplies the first explicit product
+policy, `application.scoring_policy.PYTHON_STATIC_V1`, identified as
+`repolens-python-static-v1`. Callers still supply a named immutable ScoringPolicy
+to score_repository or AnalysisReport; there is no implicit policy selection,
+analyzer registration or configuration loader. Caller-supplied policies remain
+supported. Earlier synthetic engine tests remain separate from product goldens.
+
+The product penalties are INFO 0, LOW 5, MEDIUM 15, HIGH 30 and CRITICAL 60.
+Its scope and weights are code quality 2, testing 1, security 3, repository hygiene
+1 and CI/CD 1. Documentation and maintainability are unassessed, outside scope.
+This is not yet a seven-category engineering-quality score. See
+[calibration](scoring-calibration.md) for rule evidence, rationale, exact reference
+scenarios, sensitivity and policy compatibility. These values are transparent
+engineering heuristics, without statistical or incident-prediction validation.
+
+Scores represent deductions from 100 within the explicitly declared, completed
+assessment scope. They are not certifications, probabilities, percentile ranks
+or guarantees of correctness, security, maintainability, test effectiveness,
+CI success or production readiness. **100 means no score-deducting findings
+observed by completed analyzers in this policy scope.** INFO observations can
+still be present. **0 means distinct observed rule penalties reached the category
+floor**, or all assessed categories reached it for an overall zero; it does not
+prove every practice is deficient. No grades or presentation bands are assigned.
 
 ## Inputs and invariants
 
 The policy's category weights explicitly declare the assessment scope. Categories
-outside that scope receive no score and must not be presented as passed. Use all
-seven categories for a full repository assessment; a smaller scope must be
-identified as such. Categories are code quality, testing, security, documentation,
+outside that scope receive no score and must not be presented as passed. All
+seven categories would require real assessable capability and a different declared
+policy; adding weights alone cannot supply missing work. Categories are code
+quality, testing, security, documentation,
 repository hygiene, CI/CD and maintainability.
 
 An explicit analyzer plan declares expected work. Each analyzer has a unique
@@ -37,7 +55,7 @@ used for impact. A regression test fixes the deliberate ordering contract.
 | CRITICAL | Severe, immediate risk such as confirmed exposed credentials |
 
 Rule authors must justify severity using actual evidence and project context,
-not aesthetic preference. No concrete rules are introduced in Phase 1.
+not aesthetic preference. Phase 9 changes no shipped rule severity.
 Penalty values are integer points in [0,100], nondecreasing in severity. INFO
 must be zero and at least CRITICAL must be positive. Weights are positive
 integers. Duplicate/missing severity entries or duplicate/empty weights fail.
@@ -55,9 +73,9 @@ integers. Duplicate/missing severity entries or duplicate/empty weights fail.
 
 Every non-completed result needs a nonblank reason and must have no findings.
 COMPLETED cannot carry an outcome reason. Partial work must not masquerade as
-completed work. Failure isolation itself is deferred to Phase 3; unexpected
-exceptions propagate across the analyzer protocol until the application layer
-exists. UNSUPPORTED is not interchangeable with NOT_APPLICABLE: inability to
+completed work. Phase 3 orchestration isolates ordinary exceptions and invalid
+results as sanitized FAILED outcomes. UNSUPPORTED is not interchangeable with
+NOT_APPLICABLE: inability to
 check something does not establish irrelevance.
 
 ## Category arithmetic
@@ -71,6 +89,10 @@ selected severity, and raw penalty. INFO observations remain in the report.
 An assessed category value is `max(0, 100 - sum(rule penalties))`. Total applied
 deductions are capped at 100 points; raw deduction records remain intact even
 when their sum exceeds 100. There is no additional undocumented penalty.
+Impact measures distinct observed rule classes, not finding volume. Twenty PY001
+occurrences cost 5 under v1, just as one does. Repeated BANDIT-Bnnn observations
+likewise deduct once at their highest normalized severity; occurrence evidence
+remains visible. No repository-size, occurrence or confidence multiplier exists.
 
 If any planned analyzer is missing, failed, skipped or unsupported, category
 state is INCOMPLETE and value is None. Observed deductions are still retained
@@ -126,12 +148,30 @@ policy is not part of these value objects. A structurally valid manually supplie
 number is not evidence that policy arithmetic was followed; AnalysisReport and
 score_repository remain the trusted derivation path.
 
-100 means no penalized findings in completed declared scope. It is not proof
-of security, runtime correctness, executed test coverage or comprehensive
+100 means no penalized findings in completed declared scope. TEST001/TEST002 can
+leave testing at 100 and CI001 can leave CI/CD at 100; these uncertain absence
+observations remain INFO. Testing currently has no deductive rules, so completed
+testing always scores 100 under v1. This can raise an overall mean relative to a
+non-applicable testing category; the calibration document quantifies that effect.
+Category values are comparable only with their scope and availability context.
+100 is not proof of security, runtime correctness, executed test coverage or comprehensive
 analysis. The analyzer plan and policy are essential context. Rule repetition
 caps prevent size bias but can understate widespread occurrences; the full
 evidence remains available. Tiny project/library/application applicability
 decisions require later concrete rules; the scoring engine does not guess them.
+
+Security currently means supported detached Bandit observations, not a clean
+dependency graph. Missing Bandit is UNSUPPORTED. DependencyAuditAnalyzer produces
+FAILED or UNSUPPORTED, never a clean audit: structured advisory severity is still
+unavailable. If declared in the plan, it blocks security and overall numbers even
+when Bandit completes cleanly. Choosing a Bandit-only plan must be disclosed;
+unavailable work must never be removed after execution to salvage a number.
+
+Any future penalty, category weight or scope change requires a new policy
+identifier. Keep the identifier together with plan, results and score;
+AnalysisReport already retains the complete policy. Analyzer/tool versions and
+input eligibility also matter for comparison; the policy identifier alone cannot
+freeze those inputs. Do not mutate released v1 values under the existing name.
 
 Evidence uses nonempty observations, normalized relative POSIX paths and positive
 1-based lines when supplied. A line needs a file path. Lexical location checks

@@ -67,7 +67,10 @@ unknown/no supported manifest scope, and valid exact declarations—including an
 empty observed subset—yield UNSUPPORTED with a controlled limitation reason.
 It never returns a clean audit or findings and thus cannot inflate a security score.
 This analyzer can be independently registered beside python-security; the generic
-orchestrator preserves both states, with explicit caller-owned synthetic policies.
+orchestrator preserves both states with explicit caller-supplied policies,
+including Phase 9's [product values](scoring-calibration.md). A declared audit
+continues to block numeric security/overall scores; the policy cannot omit it
+after execution to salvage a number.
 
 There is **no target dependency network, install, download, build, resolution,
 auto-fix or execution** in Phase 7. RepoLens's development pip-audit gate still

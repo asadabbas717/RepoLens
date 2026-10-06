@@ -6,7 +6,7 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phases 0 through 8 provide packaging, development tooling, tests, CI, immutable
+Phases 0 through 9 provide packaging, development tooling, tests, CI, immutable
 domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
 deterministic sequential orchestration and a path-only repository-hygiene analyzer.
 It observes root ignore-policy paths and ASCII case collisions using bounded data.
@@ -22,8 +22,17 @@ See [security rules](docs/rules/security.md) and [dependency audit](docs/depende
 GitHub Actions YAML now reaches a static CI/CD analyzer through bounded detached
 workflow data, with three conservative observations and no workflow execution.
 See [workflow data](docs/workflow-data.md) and [CI/CD rules](docs/rules/ci-cd.md).
+The first explicit product policy, `repolens-python-static-v1`, assesses code
+quality, testing, security, hygiene and CI/CD. Documentation and maintainability
+remain unassessed. Penalties are 0/5/15/30/60 by ascending severity, with category
+weights 2/1/3/1/1. These are transparent engineering heuristics, not validated
+measurements. 100 means no deductive findings in completed supported scope;
+INFO advisories can still be present. Unavailable planned work blocks numeric
+scores, including dependency auditing when declared. A Bandit-only plan does not
+establish dependency security. See [calibration](docs/scoring-calibration.md).
 No scanning command is implemented yet. The development version is `0.1.0.dev0`; this is
 not a released product.
+Phase 9 is locally implemented; its hosted verification remains pending publication.
 
 ## Planned v1 scope
 

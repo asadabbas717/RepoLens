@@ -567,8 +567,60 @@ Whitespace and scope review passed. Acquisition/read/process security, orchestra
 scoring arithmetic and prior analyzer semantics were unchanged. No Phase 9 work
 or production scoring policy was added.
 
-Phase 8 remains uncommitted. Local Windows checks do not establish hosted
-Windows/Ubuntu Python 3.13/3.14 verification; that matrix remains a closure
-requirement after publication. Some valid GitHub/YAML features are intentionally
+Phase 8 was subsequently published and verified by the hosted matrix below.
+Some valid GitHub/YAML features are intentionally
 unsupported, as documented in workflow-data and CI/CD rules; parsed structure
 never proves GitHub acceptance or successful execution.
+
+## Phase 8 hosted verification (2026-10-06)
+
+[Quality run 37464126457](https://github.com/asadabbas717/RepoLens/actions/runs/37464126457)
+completed successfully for `8fcb44915533a3a42446f2359adda7504f9d5cc5`.
+All four Windows/Ubuntu Python 3.13/3.14 jobs succeeded, confirmed from their
+hosted job states. This closes Phase 8 and does not verify Phase 9 changes.
+
+## Phase 9 local verification (2026-10-06)
+
+The explicit versioned python-static-v1 product profile was calibrated with
+neutral typed reference results and inert real-analyzer snapshot composition.
+The 45 added cases lock its identifier, severity table, category scope/weights,
+exact category/overall results, half-up rounding, deduplication, floor behavior,
+INFO visibility, applicability and missing/failed/skipped/unsupported work.
+Controlled vendor observations retain Bandit severity; missing Bandit and planned
+dependency auditing cannot produce numeric security/overall scores. Testing's
+INFO-only contribution is documented and tested, not interpreted as effectiveness.
+
+Both local Windows CPython 3.13.15 and 3.14.7 collected 799 cases: 798 passed and
+the existing real-symlink privilege case skipped. Combined statement/branch
+coverage was 99.41% on 3.13 and 99.38% on 3.14. Domain scoring, reports, product
+values and analyzer normalization are 100% covered. No quality threshold changed.
+Locked synchronization passed for both environments. Ruff format/check and
+strict mypy passed (60 source/test files). Bandit had no medium/high findings;
+the existing two reviewed LOW subprocess imports and targeted launch suppressions
+remain unchanged. No runtime/development dependencies or lock entries changed.
+
+The dependency-audit gate initially hit the restricted environment's denied
+network/cache access; the authorized network retry passed with no known
+vulnerabilities, skipping only the unpublished RepoLens distribution. The build
+produced source and wheel distributions. The wheel was reinstalled without index
+or dependency access in the isolated smoke environment; isolated policy import
+and empty-plan score safety passed. These operations install/test RepoLens, never
+target repository code. Whitespace and scope review passed.
+
+The existing sandbox temporary-directory workaround was retained:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase9-full --cov --cov-report=term-missing
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase9-py314.coverage uv run --locked --python 3.14 pytest --basetemp=.pytest_cache/phase9-py314 --cov --cov-report=term-missing
+```
+
+Production changes are confined to the explicit application-layer policy value.
+Domain arithmetic, reports, analyzer severities/lifecycle, orchestration and all
+acquisition/read/tool/YAML controls are unchanged. No CLI, rendering, configuration,
+new analyzers or Phase 10+ functionality was added. No score was tuned to RepoLens.
+The policy is a documented heuristic rather than an empirically validated measure.
+Phase 9 remains uncommitted; full hosted Windows/Ubuntu Python 3.13/3.14
+verification is a closure requirement after publication, not established by these
+local results. See [calibration](scoring-calibration.md) for exact reference scores
+and the rule requiring a new identifier for changed penalties, weights or scope.

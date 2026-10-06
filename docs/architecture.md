@@ -2,7 +2,7 @@
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
 The `domain`, acquisition `infrastructure`, orchestration `application` and
-concrete `analyzers` packages exist after Phase 8. Add further boundaries when implementations arrive.
+concrete `analyzers` packages exist after Phase 9. Add further boundaries when implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
@@ -37,13 +37,19 @@ Findings include stable rule IDs, category, impact severity, explanation,
 source analyzer, remediation, and file/line evidence where applicable.
 Analysis results distinguish completed, skipped, unsupported, failed and
 explicitly non-applicable. Missing planned results remain unavailable. Failures
-never imply passed checks or a perfect score. The [scoring contract](scoring.md)
+never imply passed checks or a numeric clean result. The [scoring contract](scoring.md)
 defines explicit policies, per-rule deductions, caps, weights and uncertainty.
-No calibrated default penalties or runtime coverage estimates are invented.
+Phase 9 provides explicit product values with documented heuristic rationale;
+no runtime coverage estimates are invented.
 `models.py` owns domain values, `contracts.py` the analyzer protocol,
 `scoring.py` arithmetic and availability, and `report.py` a consistent scored
 snapshot. Application orchestration composes these values; rendering remains
 outside this phase.
+`application/scoring_policy.py` owns the immutable `PYTHON_STATIC_V1` value
+profile. Product selection belongs above the generic domain; domain.scoring
+remains policy-agnostic and unchanged. No implicit policy/plan selection or
+configuration loading is added. See [calibration](scoring-calibration.md) for
+versioning, exact values, partial scope and availability interpretation.
 
 ## Main engineering risks
 
@@ -54,7 +60,8 @@ outside this phase.
 - Report fields can become API commitments: version JSON and test serialization.
 - Dependency updates can break reproducibility: commit uv.lock and review updates.
 
-PyYAML is the sole runtime dependency, for non-constructing workflow parsing. Typer/Rich, a safe YAML parser, and Jinja2
+PyYAML is the selected sole runtime dependency, for non-constructing workflow
+parsing. Typer/Rich and Jinja2
 remain candidates, not committed dependencies. Add each only with a concrete
 requirement and maintenance/security review.
 
@@ -106,7 +113,7 @@ RH001 observes no exact root .gitignore path in eligible inventory (INFO), and
 RH002 observes ASCII-only case-colliding full file paths (LOW). No tracking,
 commit, ignore-effectiveness, content or complete filesystem absence claim is
 made. Registration and execution still use the unchanged Phase 3 API, with no
-hygiene-specific orchestration logic or default scoring policy. See
+hygiene-specific orchestration logic. Product policy values are separate from these rules. See
 [repository data](repository-data.md), [hygiene rules](rules/repository-hygiene.md)
 and ADR 0004 for the boundary, eligibility limits and occurrence identities.
 
@@ -156,7 +163,7 @@ builder inventories once. The private verified_read module preserves existing
 source checks for both builders. Pure domain declaration parsing supports only
 static exact pins; DependencyAuditAnalyzer exposes unavailable vulnerability
 auditing honestly. No resolver, target pip invocation, severity invention or
-scoring default is added. See [security rules](rules/security.md),
+security-specific scoring exception is added. See [security rules](rules/security.md),
 [dependency audit](dependency-audit.md) and ADR 0006 for explicit limits.
 
 

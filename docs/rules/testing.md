@@ -45,8 +45,10 @@ with its relative path and no invented line; its ID is
 roots, timestamps and source literals. Findings sort by exact identifier and
 never contain bodies, literals or parser diagnostics. The immutable typed catalog
 validates stable TEST plus three-digit IDs, enum/category membership and text.
-No production weights or penalties are selected; INFO has zero deduction under
-the existing domain contract. A static category score is not a test pass rate.
+The analyzer selects no weights or penalties; INFO has zero deduction under
+the domain contract and Phase 9 [product policy](../scoring-calibration.md).
+Completed testing currently scores 100 even with these observations; that is
+no measured test effectiveness or test pass rate.
 
 ## Configuration and coverage limits
 
