@@ -53,11 +53,19 @@ def _link_or_reparse(path: Path) -> bool:
     )
 
 
-def repository_files(
+def _excluded_directory(path: Path) -> bool:
+    return (
+        path.name in EXCLUDED_DIRECTORIES
+        or path.name.startswith(".venv-")
+        or (path / "pyvenv.cfg").exists(follow_symlinks=False)
+    )
+
+
+def repository_file_sizes(
     lease: RepositoryLease,
     limits: TraversalLimits | None = None,
-) -> Iterator[Path]:
-    """Yield relative regular-file paths; ignore links, environments and oversize files.
+) -> Iterator[tuple[Path, int]]:
+    """Yield bounded relative regular-file metadata; no content reads.
 
     Inventory is not an atomic snapshot and must not be used as authorization
     for later unchecked reads. No .gitignore parsing or binary content sniffing.
@@ -85,16 +93,22 @@ def repository_files(
                     continue
                 metadata = path.lstat()
                 if stat.S_ISDIR(metadata.st_mode):
-                    if (
-                        path.name in EXCLUDED_DIRECTORIES
-                        or path.name.startswith(".venv-")
-                        or (path / "pyvenv.cfg").exists(follow_symlinks=False)
-                    ):
+                    if _excluded_directory(path):
                         continue
                     if depth + 1 > limits.max_depth:
                         raise TraversalLimitExceeded("Repository depth limit exceeded")
                     stack.append((path, depth + 1))
-                elif stat.S_ISREG(metadata.st_mode) and metadata.st_size <= limits.max_file_bytes:
-                    yield path.relative_to(root)
+                elif stat.S_ISREG(metadata.st_mode):
+                    yield path.relative_to(root), metadata.st_size
     except OSError:
         raise AcquisitionError("Repository inventory became inaccessible") from None
+
+
+def repository_files(
+    lease: RepositoryLease, limits: TraversalLimits | None = None
+) -> Iterator[Path]:
+    """Yield eligible relative files, retaining Phase 2's oversized-file omission."""
+    limits = limits or TraversalLimits()
+    for path, size in repository_file_sizes(lease, limits):
+        if size <= limits.max_file_bytes:
+            yield path

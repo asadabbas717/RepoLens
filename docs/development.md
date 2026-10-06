@@ -353,6 +353,66 @@ CI workflow or quality-gate changes were made. No target contents are read by th
 new analyzer and no target code is executed. Tests use inert controlled repositories
 and simulated remote copying, not live GitHub acquisition. Scoring policies remain
 explicit synthetic fixtures; no product weights or penalties were introduced.
-Phase 4 remains uncommitted; hosted verification is pending publication. No Python
+Phase 4 was subsequently published; hosted verification is recorded below. No Python
 AST checks, target tool adapters, testing/security/CI analysis, CLI, rendering,
 configuration or Phase 5 functionality was added.
+
+
+## Phase 4 hosted verification (2026-10-06)
+
+[Quality run 37388379703](https://github.com/asadabbas717/RepoLens/actions/runs/37388379703)
+completed successfully for `18d23e4c84e505d7c6835535efe9a2c57bfdc609`.
+All four Windows/Ubuntu and Python 3.13/3.14 jobs succeeded. This establishes
+hosted Phase 4 verification, not verification of Phase 5 changes.
+
+
+## Phase 5 local verification (2026-10-06)
+
+Locked sync, formatting, lint, strict mypy, the established Bandit gate, dependency
+audit and source/wheel builds passed. The full 389-case suite ran on both installed
+Windows CPython 3.13.15 and 3.14.7: 388 passed and one existing real symlink test
+skipped for account privileges on each interpreter. The 94 new cases cover source
+selection/values, raw and decoded budgets, encoding/BOM behavior, path and descriptor
+checks, file/type/parent replacement, growth, lifetime, AST rules, fixed grammar
+boundaries, occurrence identities and acquired-source/report composition.
+
+Coverage was 99.84% on 3.13 and 99.83% on 3.14, with 100% statement coverage and
+100% statement/branch coverage for the new Python source boundary, domain values
+and analyzer. Scoring remains fully covered. The same grammar fixtures and golden
+finding ID passed on both versions. Local environments are not hosted Linux evidence.
+
+The documented sandbox pytest temporary-storage workaround was retained:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase5-tmp --cov --cov-report=term-missing
+```
+
+A separate ignored .venv-phase5-py314 environment used the same locked dev group
+and the installed CPython 3.14.7 interpreter. A Git Bash equivalent, when Python
+3.14 is available, is:
+
+```bash
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 uv sync --locked --group dev --python 3.14
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase5-py314.coverage uv run --locked --python 3.14 pytest --basetemp=.pytest_cache/phase5-py314-tmp --cov --cov-report=term-missing
+```
+
+Temporary fixtures and separate coverage storage change no assertions, warning
+handling or quality thresholds. Target parser warnings are scoped out only at
+ast.parse as described in the rules contract, preventing target literals from
+escaping as diagnostics; project warning-as-error behavior is unchanged.
+
+The wheel installed without dependencies in the isolated smoke environment;
+Python source/domain/infrastructure imports and AST orchestration passed under
+isolated Python. Bandit reported no medium/high findings and retains the existing
+reviewed LOW subprocess import finding and targeted Git Popen suppression. Audit
+found no known vulnerabilities, skipping unpublished RepoLens. Whitespace checks
+passed and the working tree was reviewed. No dependencies, locks, CI gates,
+scoring arithmetic or orchestration special cases changed. Source data is never
+imported/executed and tests use inert owned fixtures without live acquisition.
+
+Phase 5 implementation is uncommitted. Its full hosted Windows/Linux 3.13/3.14
+matrix remains a closure requirement pending publication; no hosted Phase 5
+success is claimed from these local checks. No testing-quality, security,
+dependency, CI/CD, documentation analysis, CLI, rendering, configuration or
+Phase 6 functionality was introduced.

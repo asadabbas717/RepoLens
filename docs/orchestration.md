@@ -71,7 +71,8 @@ that identity, but the engine never starts or closes acquisition. It imports
 only domain APIs and the standard library; no infrastructure objects enter the
 domain. All Phase 2 path, lifetime and subprocess safeguards remain independent.
 Future content analysis requires a separately justified bounded data-access seam; Phase 4 now supplies an immutable relative-path inventory, documented in
-[repository data](repository-data.md), without introducing content reads.
+[repository data](repository-data.md), without introducing content reads. Phase 5 adds detached bounded Python text
+through infrastructure; the engine remains generic and performs no reads.
 
 Execution returns an immutable ordered tuple of AnalyzerResult values. For a
 scored snapshot, callers construct AnalysisReport(repository, plan.specs,

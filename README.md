@@ -6,10 +6,12 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phases 0 through 4 provide packaging, development tooling, tests, CI, immutable
+Phases 0 through 5 provide packaging, development tooling, tests, CI, immutable
 domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
 deterministic sequential orchestration and a path-only repository-hygiene analyzer.
 It observes root ignore-policy paths and ASCII case collisions using bounded data.
+Python source now reaches an AST-only analyzer through a verified bounded text
+snapshot, with two conservative code-quality observations targeting 3.13 syntax.
 No scanning command is implemented yet. The development version is `0.1.0.dev0`; this is
 not a released product.
 
@@ -48,6 +50,8 @@ See [orchestration](docs/orchestration.md) for registration, execution, failure
 isolation and explicit-policy report composition.
 See [repository data](docs/repository-data.md) for the analyzer-safe snapshot and
 [hygiene rules](docs/rules/repository-hygiene.md) for exact signals and limitations.
+See [Python source](docs/python-source.md) and [Python rules](docs/rules/python.md)
+for source limits, encoding, grammar, lifecycle and evidence semantics.
 
 ## Safety and limitations
 

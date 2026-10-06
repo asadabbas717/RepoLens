@@ -13,7 +13,8 @@ Keep changes small enough to review and do not declare unavailable gates passed.
    result ownership, failure isolation and status-preserving outcomes.
 4. Hygiene: implemented bounded path snapshots, two conservative catalogued
    observations and inert acquired fixtures.
-5. Python: incremental AST checks and justified mature-tool adapters.
+5. Python: implemented bounded source snapshots and two structural AST signals;
+   mature-tool target adapters are deliberately deferred.
 6. Testing signals: static test presence/configuration, no claimed executed coverage.
 7. Security/dependencies: safe adapters, missing tools and normalized results.
 8. CI/CD: safely parse GitHub Actions and state runtime inference limitations.
@@ -32,6 +33,7 @@ Phases 0–2 are complete, including the full hosted matrix for Phase 2 commit
 `b91b9d0` ([Quality run 37384103705](https://github.com/asadabbas717/RepoLens/actions/runs/37384103705)).
 Phase 3 adds application machinery; analyzers remain explicitly registered. Phase 4 introduces the first repository hygiene rules, their typed catalog and
 inert controlled fixtures using a bounded path-only domain snapshot. Phase 5
-will add justified Python static/AST checks and mature-tool integrations where
-appropriate, after separately designing bounded content access. No Phase 5 code
-is present.
+adds bounded decoded-source data and bare-except/wildcard-import observations,
+with reviewed read/encoding/grammar limits. Phase 6 will introduce static testing
+signals without running target tests or claiming executed coverage; no Phase 6
+functionality is present.

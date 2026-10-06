@@ -2,7 +2,7 @@
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
 The `domain`, acquisition `infrastructure`, orchestration `application` and
-concrete `analyzers` packages exist after Phase 4. Add further boundaries when implementations arrive.
+concrete `analyzers` packages exist after Phase 5. Add further boundaries when implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
@@ -82,8 +82,8 @@ registered spec. Cross-result finding identities and rule categories are checked
 before acceptance, so invalid results cannot abort later report construction.
 
 The application depends only on domain contracts and the standard library.
-Phase 4 extends AnalysisContext with optional FileInventory data; execution itself
-remains independent of that data shape. Acquisition stays caller-owned; leases
+Phases 4 and 5 extend AnalysisContext with optional FileInventory and bounded
+PythonSourceSnapshot data; execution remains independent of those data shapes. Acquisition stays caller-owned; leases
 and filesystem implementations never enter the domain.
 
 Execution returns an ordered tuple of AnalyzerResult values. Callers may compose
@@ -109,3 +109,23 @@ made. Registration and execution still use the unchanged Phase 3 API, with no
 hygiene-specific orchestration logic or default scoring policy. See
 [repository data](repository-data.md), [hygiene rules](rules/repository-hygiene.md)
 and ADR 0004 for the boundary, eligibility limits and occurrence identities.
+
+
+## Python source and static analysis (Phase 5)
+
+Pure PythonSourceFile/PythonSourceSnapshot values contain only relative paths and
+bounded decoded text, excluded from default representations. Context validation
+requires source membership to exactly match selected .py/.pyi inventory paths.
+The infrastructure builder reuses the shared metadata walker, inventories once,
+admits candidates within per-file/count/aggregate limits, and reads only verified
+regular files under a live lease. All reads/encoding failures are sanitized and
+prevent publication. Domain relative-path validation now lives in domain.paths;
+models preserves its helper import for compatibility.
+
+PythonStaticAnalyzer requests 3.13 grammar, parses each file once and walks its
+AST once for bare except and non-stub wildcard import observations. Unsupported
+parsing discards partial findings; an empty available source set is non-applicable,
+while unavailable data is failed. Orchestration and scoring are unchanged. No
+external target adapters, target imports, test/security analysis or Phase 6 work
+exist. See [Python source](python-source.md), [Python rules](rules/python.md) and
+ADR 0005 for the resource, encoding, grammar and race limitations.

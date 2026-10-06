@@ -51,5 +51,7 @@ must use the acquired traversal boundary for those guarantees.
 
 The hygiene analyzer consumes this data without rereading paths. Future content
 analysis requires a separate justified bounded read/decoding/lifetime design;
-relative strings are not authorization for unchecked later reads. Phase 4 does
-not introduce such a capability.
+relative strings are not authorization for unchecked later reads. Phase 4 introduced no content capability. Phase 5 now supplies detached bounded
+Python text through a separately verified infrastructure boundary; see
+[Python source](python-source.md). The path-only builder retains its original
+size-omission contract; the Python builder fails on oversized selected sources.

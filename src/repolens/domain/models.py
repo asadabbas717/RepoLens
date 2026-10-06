@@ -3,7 +3,9 @@
 from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
-from pathlib import PurePosixPath, PureWindowsPath
+
+from repolens.domain.paths import require_relative_file_path as require_relative_file_path
+from repolens.domain.python_source import PythonSourceSnapshot, is_python_path
 
 
 class Severity(StrEnum):
@@ -62,24 +64,6 @@ class Repository:
 MAX_INVENTORY_FILES = 20_000
 
 
-def require_relative_file_path(value: str) -> None:
-    """Validate a canonical relative POSIX location without performing I/O."""
-    if not isinstance(value, str):
-        raise ValueError("file_path must be a normalized relative POSIX file path")
-    path = PurePosixPath(value)
-    if (
-        not value
-        or "\\" in value
-        or "\x00" in value
-        or PureWindowsPath(value).drive
-        or path.is_absolute()
-        or ".." in path.parts
-        or path.as_posix() != value
-        or value == "."
-    ):
-        raise ValueError("file_path must be a normalized relative POSIX file path")
-
-
 @dataclass(frozen=True, slots=True, init=False)
 class FileInventory:
     """Completed eligible-file inventory; empty differs from unavailable.
@@ -108,10 +92,17 @@ class AnalysisContext:
 
     repository: Repository
     inventory: FileInventory | None = None
+    python_sources: PythonSourceSnapshot | None = None
 
     def __post_init__(self) -> None:
         if self.inventory is not None and not isinstance(self.inventory, FileInventory):
             raise ValueError("inventory must be a FileInventory or unavailable")
+        if self.python_sources is not None:
+            if not isinstance(self.python_sources, PythonSourceSnapshot) or self.inventory is None:
+                raise ValueError("Python source data requires a valid snapshot and inventory")
+            expected = tuple(path for path in self.inventory.paths if is_python_path(path))
+            if tuple(source.path for source in self.python_sources.files) != expected:
+                raise ValueError("Python source paths must exactly match selected inventory paths")
 
 
 @dataclass(frozen=True, slots=True)

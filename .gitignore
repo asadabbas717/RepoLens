@@ -1,6 +1,7 @@
 .venv/
 .venv-bootstrap/
 .venv-smoke/
+.venv-phase5-py314/
 .uv-cache/
 __pycache__/
 *.py[cod]
