@@ -6,12 +6,15 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phases 0 through 5 provide packaging, development tooling, tests, CI, immutable
+Phases 0 through 6 provide packaging, development tooling, tests, CI, immutable
 domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
 deterministic sequential orchestration and a path-only repository-hygiene analyzer.
 It observes root ignore-policy paths and ASCII case collisions using bounded data.
 Python source now reaches an AST-only analyzer through a verified bounded text
 snapshot, with two conservative code-quality observations targeting 3.13 syntax.
+Static testing now observes conventional filenames and AST declarations through
+the same detached data, without executing tests or measuring target coverage.
+See [testing rules](docs/rules/testing.md) for exact conventions and limitations.
 No scanning command is implemented yet. The development version is `0.1.0.dev0`; this is
 not a released product.
 

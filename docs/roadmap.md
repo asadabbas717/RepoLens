@@ -15,7 +15,8 @@ Keep changes small enough to review and do not declare unavailable gates passed.
    observations and inert acquired fixtures.
 5. Python: implemented bounded source snapshots and two structural AST signals;
    mature-tool target adapters are deliberately deferred.
-6. Testing signals: static test presence/configuration, no claimed executed coverage.
+6. Testing signals: implemented conservative filename/AST advisories; configuration
+   interpretation deferred, no claimed executed coverage.
 7. Security/dependencies: safe adapters, missing tools and normalized results.
 8. CI/CD: safely parse GitHub Actions and state runtime inference limitations.
 9. Scoring calibration: documented sample fixtures and regression tests.
@@ -34,6 +35,6 @@ Phases 0–2 are complete, including the full hosted matrix for Phase 2 commit
 Phase 3 adds application machinery; analyzers remain explicitly registered. Phase 4 introduces the first repository hygiene rules, their typed catalog and
 inert controlled fixtures using a bounded path-only domain snapshot. Phase 5
 adds bounded decoded-source data and bare-except/wildcard-import observations,
-with reviewed read/encoding/grammar limits. Phase 6 will introduce static testing
-signals without running target tests or claiming executed coverage; no Phase 6
-functionality is present.
+with reviewed read/encoding/grammar limits. Phase 6 adds static testing
+structure advisories without running target tests or claiming executed coverage.
+Phase 7 will evaluate safe security/dependency adapters; none are implemented.

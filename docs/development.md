@@ -411,8 +411,50 @@ passed and the working tree was reviewed. No dependencies, locks, CI gates,
 scoring arithmetic or orchestration special cases changed. Source data is never
 imported/executed and tests use inert owned fixtures without live acquisition.
 
-Phase 5 implementation is uncommitted. Its full hosted Windows/Linux 3.13/3.14
-matrix remains a closure requirement pending publication; no hosted Phase 5
-success is claimed from these local checks. No testing-quality, security,
+Phase 5 was subsequently published and verified by the hosted matrix below. No testing-quality, security,
 dependency, CI/CD, documentation analysis, CLI, rendering, configuration or
 Phase 6 functionality was introduced.
+
+
+## Phase 5 hosted verification (2026-10-06)
+
+[Quality run 37393028192](https://github.com/asadabbas717/RepoLens/actions/runs/37393028192)
+completed successfully for `95d701add94289767c2b3a54aab1baf409448b59`.
+All four Windows/Ubuntu Python 3.13/3.14 jobs succeeded. This closes Phase 5;
+it does not establish hosted verification of uncommitted Phase 6 changes.
+
+
+## Phase 6 local verification (2026-10-06)
+
+Locked synchronization, Ruff format/lint, strict mypy, the full test suite,
+Bandit, dependency audit and source/wheel builds passed locally. Both installed
+Windows CPython 3.13.15 and 3.14.7 ran 447 cases: 446 passed and the existing
+real-symlink privilege case skipped. Total statement/branch coverage is 99.85%
+on both versions, with 100% for testing_static, shared python_ast and scoring.
+The 58 added cases cover discovery/near matches, direct AST shapes, comments and
+strings, stubs/custom names, unavailable states, grammar/resource failures,
+partial rejection, catalog validation, deterministic golden identities and
+owned acquisition/report composition. Inert marker fixtures and forbidden I/O
+boundaries prove detached execution; unavailable testing cannot produce a score.
+
+The established sandbox workaround remains unchanged:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase6-final --cov --cov-report=term-missing
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase6-py314.coverage uv run --locked --python 3.14 pytest --basetemp=.pytest_cache/phase6-py314-final --cov --cov-report=term-missing
+```
+
+The wheel installed without dependencies in the isolated smoke environment;
+static-testing imports and empty-snapshot orchestration passed under isolated
+Python. Bandit reported no medium/high findings, retaining the reviewed LOW
+subprocess import and targeted Git Popen suppression. Audit found no known
+vulnerabilities, skipping unpublished RepoLens. No dependencies, lock, workflow,
+quality thresholds, acquisition, domain or orchestration code changed. The shared
+pure parser preserves Phase 5 policy. Configuration contents are not interpreted,
+no target code runs and target coverage is not measured. Whitespace and scope
+review passed. No Phase 7 security/dependency adapters or later work was added.
+
+Phase 6 remains uncommitted. Local Windows checks do not establish hosted Linux
+verification; the full hosted Windows/Ubuntu Python 3.13/3.14 matrix is still a
+closure requirement after publication.

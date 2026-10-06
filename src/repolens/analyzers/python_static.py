@@ -3,9 +3,10 @@
 import ast
 import hashlib
 import re
-import warnings
 from dataclasses import dataclass
 
+from repolens.analyzers.python_ast import TARGET_GRAMMAR as TARGET_GRAMMAR
+from repolens.analyzers.python_ast import parse_source
 from repolens.domain.models import (
     AnalysisContext,
     AnalyzerResult,
@@ -18,8 +19,6 @@ from repolens.domain.models import (
     require_enum,
     require_text,
 )
-
-TARGET_GRAMMAR = (3, 13)
 
 
 @dataclass(frozen=True, slots=True)
@@ -103,17 +102,7 @@ class PythonStaticAnalyzer:
         findings: list[Finding] = []
         for source in snapshot.files:
             try:
-                # Target syntax warnings can include literals. They are neither
-                # findings nor diagnostics; only this parse scopes their suppression.
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore", SyntaxWarning)
-                    warnings.simplefilter("ignore", DeprecationWarning)
-                    tree = ast.parse(
-                        source.text,
-                        filename="<repolens-source>",
-                        feature_version=TARGET_GRAMMAR,
-                        optimize=0,
-                    )
+                tree = parse_source(source.text)
             except (SyntaxError, ValueError):
                 return AnalyzerResult(
                     self.spec,

@@ -2,7 +2,7 @@
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
 The `domain`, acquisition `infrastructure`, orchestration `application` and
-concrete `analyzers` packages exist after Phase 5. Add further boundaries when implementations arrive.
+concrete `analyzers` packages exist after Phase 6. Add further boundaries when implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
@@ -126,6 +126,17 @@ PythonStaticAnalyzer requests 3.13 grammar, parses each file once and walks its
 AST once for bare except and non-stub wildcard import observations. Unsupported
 parsing discards partial findings; an empty available source set is non-applicable,
 while unavailable data is failed. Orchestration and scoring are unchanged. No
-external target adapters, target imports, test/security analysis or Phase 6 work
-exist. See [Python source](python-source.md), [Python rules](rules/python.md) and
+external target adapters, target imports or security analysis exist. See
+[Python source](python-source.md), [Python rules](rules/python.md) and
 ADR 0005 for the resource, encoding, grammar and race limitations.
+
+
+## Static testing (Phase 6)
+
+TestingStaticAnalyzer consumes the same immutable PythonSourceSnapshot, without
+new I/O or configuration content. Two INFO rules observe absent conventional
+filenames or direct declarations; framework collection/execution is never inferred.
+A tiny pure python_ast module shares Phase 5 grammar/warning policy while keeping
+analyzers independent. Orchestration, scoring and acquisition are unchanged.
+Testing configuration is not interpreted and target coverage is not measured.
+See [testing rules](rules/testing.md) for exact shapes, IDs and unavailable states.
