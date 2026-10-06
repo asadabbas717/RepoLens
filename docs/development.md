@@ -620,7 +620,71 @@ Domain arithmetic, reports, analyzer severities/lifecycle, orchestration and all
 acquisition/read/tool/YAML controls are unchanged. No CLI, rendering, configuration,
 new analyzers or Phase 10+ functionality was added. No score was tuned to RepoLens.
 The policy is a documented heuristic rather than an empirically validated measure.
-Phase 9 remains uncommitted; full hosted Windows/Ubuntu Python 3.13/3.14
-verification is a closure requirement after publication, not established by these
-local results. See [calibration](scoring-calibration.md) for exact reference scores
+Phase 9 was subsequently published and verified by the hosted matrix below.
+See [calibration](scoring-calibration.md) for exact reference scores
 and the rule requiring a new identifier for changed penalties, weights or scope.
+
+## Phase 9 hosted verification (2026-10-06)
+
+[Quality run 37480478013](https://github.com/asadabbas717/RepoLens/actions/runs/37480478013)
+completed successfully for `2fabe8851c9b535bad44c90e9071fef975298f94`.
+All four Windows/Ubuntu Python 3.13/3.14 jobs succeeded, confirmed from their
+hosted job states. This closes Phase 9; it does not verify Phase 10 changes.
+
+## Phase 10 local verification (2026-10-06)
+
+The installed argparse scan command composes one bounded inventory, detached
+Python/workflow data, a fixed five-analyzer plan and PYTHON_STATIC_V1. Acquisition
+closes before execution. The standalone Python/workflow builders now share their
+private admission and snapshot functions with the combined builder; verified-read,
+Git/Bandit controls, analyzer semantics and domain arithmetic are unchanged.
+Dependency manifests/auditing are deliberately outside the default plan, disclosed
+in help/status and [CLI documentation](cli.md), never removed after execution.
+
+132 added cases cover help/version with no acquisition/tool side effects, exact
+default metadata, source classification including native Windows paths, strict
+Decimal threshold syntax/bounds/equality, exits 0/1/2/3, unavailable/missing work,
+sanitized parser/input/internal errors and cancellation propagation. Combined
+snapshot tests verify one traversal, equivalent standalone data contracts, all
+admission before reads, count/file/aggregate/traversal limits, decoded expansion,
+read/type/reparse/escape/mutation/lease failures and all-or-nothing publication.
+Local inert repositories exercise all five analyzers with a controlled scanner.
+Simulated remote clones prove canonical acquisition, cleanup on every tested exit
+and actual execution after origin disappearance. No test requires live GitHub.
+
+Both local Windows CPython 3.13.15 and 3.14.7 collected 931 cases: 930 passed and
+the existing real-symlink privilege case skipped. Combined statement/branch
+coverage was 99.40% on 3.13 and 99.46% on 3.14. CLI, combined snapshot builder,
+shared Python/workflow builders, scoring and reports have 100% coverage. Existing
+warning and coverage thresholds were retained. The minor cross-run coverage
+difference is in existing tool/resource branches, not incomplete new CLI coverage.
+
+Locked synchronization passed in both environments. Ruff format/check and strict
+mypy passed (65 production/test files). Bandit reported zero medium/high findings;
+two reviewed LOW subprocess imports and the existing targeted launch suppressions
+are unchanged. The authorized dependency-audit gate found no known vulnerabilities,
+skipping only the unpublished RepoLens package. Source and wheel distributions
+built successfully with locked tools and no build isolation. No dependency,
+resolution or lock entries changed; pyproject adds only the console script.
+
+The wheel reinstalled without index/dependency access into the smoke environment
+containing only pip, PyYAML and RepoLens. Its actual console executable passed
+--version, --help and scan --help without development tooling or Bandit. An inert
+installed Python-repository scan with --fail-under 0 returned the expected exit 1,
+python-security UNSUPPORTED, unavailable overall/gate and no target marker.
+No target modules, tests, builds or workflows were executed. This is controlled
+smoke verification, not self-dogfooding or a public release.
+
+The existing sandbox temporary-directory workaround was retained:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase10-full --cov --cov-report=term-missing
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase10-py314.coverage uv run --locked --python 3.14 pytest --basetemp=.pytest_cache/phase10-py314 --cov --cov-report=term-missing
+```
+
+Whitespace and scope review passed. No rich console reporting, JSON/HTML,
+configuration, plugin discovery, new analyzers, dogfooding or Phase 11+ work was
+added. Local content reads remain non-atomic; stable input and a trusted installed
+tool environment are required. Phase 10 remains uncommitted, and its full hosted
+Windows/Ubuntu Python 3.13/3.14 matrix is still required after publication.

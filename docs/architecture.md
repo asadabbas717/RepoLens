@@ -2,7 +2,8 @@
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
 The `domain`, acquisition `infrastructure`, orchestration `application` and
-concrete `analyzers` packages exist after Phase 9. Add further boundaries when implementations arrive.
+concrete `analyzers` packages and outer `cli.py` module exist after Phase 10.
+Add further boundaries when implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
@@ -11,7 +12,7 @@ concrete `analyzers` packages exist after Phase 9. Add further boundaries when i
 | analyzers | Concrete static checks producing domain findings | Domain and analysis context |
 | infrastructure | Filesystem, Git acquisition, external-tool adapters | Domain/application contracts |
 | reporting | Console/JSON/HTML rendering of one report | Domain; no independent scoring |
-| cli | Argument validation, composition, outputs and exit codes | Application, infrastructure, reporting |
+| cli | Argument validation, product composition, minimal status and exit codes | Application, analyzers, infrastructure and domain; reporting deferred |
 
 No domain dependency on CLI libraries, subprocess, filesystem traversal, or
 external-tool models. Analyzer contracts are a justified extensibility boundary;
@@ -74,8 +75,8 @@ inventory, exclusions and no-link descent. `errors.py` defines sanitized source
 errors. Only infrastructure performs subprocess/filesystem I/O; the domain
 contains no live filesystem access. See [acquisition](acquisition.md) and ADR 0003 for exact semantics and
 limitations. Application execution does not acquire sources or traverse files.
-Concrete hygiene analysis uses only an immutable path snapshot; CLI remains
-unimplemented.
+Concrete hygiene analysis uses only an immutable path snapshot; the CLI composes
+acquisition without changing its security boundary.
 
 
 ## Orchestration boundary (Phase 3)
@@ -181,3 +182,29 @@ retains only safe observation locations for three typed catalog rules: eligible
 workflow absence, non-full-SHA remote refs and explicit write-all declarations.
 Neither Actions execution nor complete schema/runtime inference is implemented.
 See [workflow data](workflow-data.md), [CI/CD rules](rules/ci-cd.md) and ADR 0007.
+
+## CLI composition (Phase 10)
+
+The outer cli.py owns argparse validation, source classification, explicit default
+plan, adapter construction, scored report and minimal status/exit mapping. Neither
+domain nor application, infrastructure or analyzers depend on CLI concepts.
+`repolens.cli:main` is the installed entry point; `run(argv)` isolates shell behavior.
+There is no command framework, configuration system or renderer abstraction.
+
+The combined infrastructure.analysis_context builder inventories once, completes
+Python/workflow admission, then reuses private admission/read/decoding functions
+factored from the standalone builders. Their public APIs and verified_read remain
+intact. Inventory and selected content cannot silently originate from separate
+traversals. Read checks remain non-atomic; stable local input is still required.
+
+Within acquisition, the CLI builds detached data and BanditRunner's origin guard,
+then closes the lease and deletes remote temporary storage before execution.
+The fixed five-analyzer plan is declared before results; dependency auditing is
+intentionally excluded with visible limitation text. Missing supported Bandit is
+UNSUPPORTED, never a clean score. Existing execute_analyzers and AnalysisReport
+receive all outcomes and PYTHON_STATIC_V1 directly, with unchanged arithmetic.
+
+Decimal `--fail-under` compares the final score exactly. Incomplete results fail
+closed. Operational status omits uncontrolled repository identity/diagnostics;
+full reporting remains Phase 11. See [CLI contract](cli.md) for exact syntax,
+resource ceilings, exits, scope and limitations. No mandatory dependency was added.

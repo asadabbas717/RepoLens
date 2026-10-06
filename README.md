@@ -6,7 +6,7 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phases 0 through 9 provide packaging, development tooling, tests, CI, immutable
+Phases 0 through 10 provide packaging, development tooling, tests, CI, immutable
 domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
 deterministic sequential orchestration and a path-only repository-hygiene analyzer.
 It observes root ignore-policy paths and ASCII case collisions using bounded data.
@@ -30,9 +30,17 @@ measurements. 100 means no deductive findings in completed supported scope;
 INFO advisories can still be present. Unavailable planned work blocks numeric
 scores, including dependency auditing when declared. A Bandit-only plan does not
 establish dependency security. See [calibration](docs/scoring-calibration.md).
-No scanning command is implemented yet. The development version is `0.1.0.dev0`; this is
+The first installed command is `repolens scan SOURCE [--fail-under SCORE]`.
+It uses a single bounded inventory and detached Python/workflow snapshots, then
+closes acquisition before analysis. A short operational summary reports usable
+or incomplete assessment; detailed console/JSON/HTML reporting is deferred.
+Missing optional Bandit makes applicable security work incomplete and returns
+exit 1. Dependency auditing is intentionally outside the default five-analyzer
+plan. See [CLI](docs/cli.md) for source forms, install, gate and exit codes.
+The development version is `0.1.0.dev0`; this is
 not a released product.
-Phase 9 is locally implemented; its hosted verification remains pending publication.
+Phase 9 hosted verification passed all four jobs. Phase 10 hosted verification
+remains pending publication.
 
 ## Planned v1 scope
 
@@ -57,11 +65,21 @@ source .venv-bootstrap/Scripts/activate
 python -m pip install uv==0.12.23
 uv sync --locked --group dev
 uv run --locked pytest --cov --cov-report=term-missing
+uv run --locked repolens --help
+uv run --locked repolens --version
 ```
 
 See [development](docs/development.md) for all gates and Git recommendations,
 [architecture](docs/architecture.md) for boundaries and safety,
 and [roadmap](docs/roadmap.md) for milestones.
+After setup, scan an inert or trusted-to-remain-stable local Git working tree:
+
+```bash
+uv run --locked repolens scan "C:/projects/example" --fail-under 85.50
+```
+
+Target code is never executed. Normal findings do not fail a complete assessment
+without a requested gate; incomplete work always returns exit 1.
 See [scoring](docs/scoring.md) for outcome states, scope, arithmetic and limitations.
 See [acquisition](docs/acquisition.md) for source lifetime, exclusions, Git
 isolation and practical safety limitations. The acquisition API is not an OS sandbox.

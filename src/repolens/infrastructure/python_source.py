@@ -54,6 +54,45 @@ def _decode_source(raw: bytes) -> str:
         raise AcquisitionError("Python source decoding failed") from None
 
 
+def _admit_python_sources(
+    entries: list[tuple[str, int]], limits: PythonSourceLimits, traversal: TraversalLimits
+) -> list[tuple[str, int]]:
+    selected: list[tuple[str, int]] = []
+    total = 0
+    for name, size in entries:
+        if is_python_path(name):
+            if size > min(limits.max_file_bytes, traversal.max_file_bytes):
+                raise AcquisitionError("Python source file byte limit exceeded")
+            total += size
+            if total > limits.max_total_bytes:
+                raise AcquisitionError("Python source aggregate byte limit exceeded")
+            selected.append((name, size))
+            if len(selected) > limits.max_files:
+                raise AcquisitionError("Python source file count exceeded")
+    return selected
+
+
+def _snapshot_sources(
+    lease: RepositoryLease, selected: list[tuple[str, int]], limits: PythonSourceLimits
+) -> PythonSourceSnapshot:
+    files: list[PythonSourceFile] = []
+    text_total = 0
+    for name, admitted_size in sorted(selected):
+        raw = _read_source(lease, name, limits.max_file_bytes)
+        if len(raw) != admitted_size:
+            raise AcquisitionError("Python source changed since inventory")
+        text = _decode_source(raw)
+        text_size = len(text.encode("utf-8"))
+        if text_size > limits.max_file_bytes:
+            raise AcquisitionError("Decoded Python source file byte limit exceeded")
+        text_total += text_size
+        if text_total > limits.max_total_bytes:
+            raise AcquisitionError("Decoded Python source aggregate byte limit exceeded")
+        files.append(PythonSourceFile(name, text))
+    _ = lease.root
+    return PythonSourceSnapshot(files)
+
+
 def snapshot_python_context(
     lease: RepositoryLease,
     limits: PythonSourceLimits | None = None,
@@ -67,47 +106,23 @@ def snapshot_python_context(
     _ = lease.root
     try:
         paths: list[str] = []
-        selected: list[tuple[str, int]] = []
+        entries: list[tuple[str, int]] = []
         manifests: list[tuple[str, int]] = []
-        raw_total = 0
         for relative, size in repository_file_sizes(lease, traversal_limits):
             name = relative.as_posix()
+            entries.append((name, size))
             if include_dependency_manifests and name in MANIFEST_PATHS:
                 if size > min(MAX_MANIFEST_BYTES, traversal_limits.max_file_bytes):
                     raise AcquisitionError("Dependency manifest byte limit exceeded")
                 manifests.append((name, size))
-            if is_python_path(name):
-                if size > min(limits.max_file_bytes, traversal_limits.max_file_bytes):
-                    raise AcquisitionError("Python source file byte limit exceeded")
-                raw_total += size
-                if raw_total > limits.max_total_bytes:
-                    raise AcquisitionError("Python source aggregate byte limit exceeded")
-                selected.append((name, size))
-                if len(selected) > limits.max_files:
-                    raise AcquisitionError("Python source file count exceeded")
             if size <= traversal_limits.max_file_bytes:
                 paths.append(name)
+        selected = _admit_python_sources(entries, limits, traversal_limits)
         inventory = FileInventory(paths)
-        files: list[PythonSourceFile] = []
-        text_total = 0
-        for name, admitted_size in sorted(selected):
-            raw = _read_source(lease, name, limits.max_file_bytes)
-            if len(raw) != admitted_size:
-                raise AcquisitionError("Python source changed since inventory")
-            text = _decode_source(raw)
-            text_size = len(text.encode("utf-8"))
-            if text_size > limits.max_file_bytes:
-                raise AcquisitionError("Decoded Python source file byte limit exceeded")
-            text_total += text_size
-            if text_total > limits.max_total_bytes:
-                raise AcquisitionError("Decoded Python source aggregate byte limit exceeded")
-            files.append(PythonSourceFile(name, text))
-        _ = lease.root
+        sources = _snapshot_sources(lease, selected, limits)
         manifest_snapshot = (
             _snapshot_manifests(lease, manifests) if include_dependency_manifests else None
         )
-        return AnalysisContext(
-            lease.identity, inventory, PythonSourceSnapshot(files), manifest_snapshot
-        )
+        return AnalysisContext(lease.identity, inventory, sources, manifest_snapshot)
     except (OSError, ValueError, RuntimeError):
         raise AcquisitionError("Python source snapshot could not be created") from None
