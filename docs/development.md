@@ -686,5 +686,81 @@ UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase10-py
 Whitespace and scope review passed. No rich console reporting, JSON/HTML,
 configuration, plugin discovery, new analyzers, dogfooding or Phase 11+ work was
 added. Local content reads remain non-atomic; stable input and a trusted installed
-tool environment are required. Phase 10 remains uncommitted, and its full hosted
-Windows/Ubuntu Python 3.13/3.14 matrix is still required after publication.
+tool environment are required. Phase 10 was subsequently published and verified
+by the hosted matrix below.
+
+## Phase 10 hosted verification (2026-10-06)
+
+[Quality run 37484518174](https://github.com/asadabbas717/RepoLens/actions/runs/37484518174)
+completed successfully for `4daa1b230b31a616279f00e346d6168c939a649c`.
+All four Windows/Ubuntu Python 3.13/3.14 jobs succeeded, confirmed from their
+hosted job states. This closes Phase 10; it does not verify Phase 11 changes.
+
+## Phase 11 local verification (2026-10-06)
+
+Three pure renderers project one AnalysisReport, with JSON schema 1, exact overall
+decimal strings/null, explicit category/analyzer states and full deduction/finding
+traceability. Console and HTML make controls visible; HTML escapes every value
+and has no active/network resources. A common public-basename guard prevents
+path/transport-shaped identity publication. Producer redaction remains explicit;
+all shipped reasons are controlled and raw exceptions stay behind Phase 3/tool
+boundaries. Scoring, acquisition, analyzer selection and tool controls are unchanged.
+
+89 added cases cover full JSON and console goldens, INFO 100, mixed findings,
+multiple evidence, zero/saturated deductions, missing/unavailable/non-applicable
+work, Unicode/HTML/control payloads, parsed HTML structure/accessibility, cross-format
+semantics, canonical byte ordering under reordered inputs, pure/no-rescore rendering
+and explicit serialization limits. Output tests cover UTF-8/LF, invalid destinations,
+lstat link-entry rejection, races before allocation and publication, creation/
+open/write/flush/fsync/close/link/cleanup failures and no-overwrite behavior.
+New OS-function mocks patch RepoLens-owned bindings, not shared stdlib functions.
+
+Phase 10 presentation assertions were updated for the new available/unavailable
+layout and full reports. Their synthetic domain fixtures now contain controlled
+public evidence/reasons and a public basename, rather than relying on the old
+summary to omit intentionally raw fixture fields. Existing secret-bearing actual
+target/tool/exception assertions and all gate/exit checks remain active. Nothing
+was weakened to hide a failure. CLI tests verify clean JSON stdout, HTML output
+requirements, pre-acquisition output validation, all-format emission for exit 1
+and sanitized output/internal failure precedence.
+
+Both local Windows CPython 3.13.15 and 3.14.7 collected 1,020 cases: 1,019 passed
+and the existing real-symlink privilege case skipped. Combined statement/branch
+coverage was 99.54% on 3.13 and 99.49% on 3.14. CLI, renderers, shared projection,
+domain scoring and reports are fully covered on both. Publication is 100% on
+3.13 and 98% on 3.14, with every statement covered and one finally-exit branch
+arc unreported on 3.14; allocation/write/publication/cleanup behavior is explicitly
+tested. Existing warning and 90% coverage thresholds were unchanged.
+
+Locked synchronization passed for both environments; Ruff format/check and strict
+mypy passed (76 source/test files). Bandit reported zero medium/high findings;
+the two reviewed LOW subprocess imports and existing targeted launch suppressions
+remain unchanged. The authorized development dependency audit found no known
+vulnerabilities, skipping only the unpublished RepoLens package. Source and wheel
+builds passed using locked tools/no isolation. No dependency or lock entries changed.
+
+The built wheel installed without index/dependency access into the smoke
+environment containing only pip, PyYAML and RepoLens. Actual installed --version,
+--help and scan --help passed. Console, JSON stdout and HTML file scans of an
+inert controlled Git repository each emitted a valid requested report with Bandit
+absent, security UNSUPPORTED/unavailable and exit 1. JSON/HTML bytes used LF and
+contained no absolute origin path. No target marker was created. This is installed
+fixture verification, not self-dogfooding or a public release.
+
+The existing sandbox temporary-directory workaround was retained:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase11-final2 --cov --cov-report=term-missing
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase11-py314.coverage uv run --locked --python 3.14 pytest --basetemp=.pytest_cache/phase11-py314-final2 --cov --cov-report=term-missing
+```
+
+Whitespace and scope review passed. Output requires a stable user-owned parent
+and hard-link-capable storage; cleanup failure after publication can leave a
+complete destination while returning 2. A 64 MiB artifact ceiling fails explicitly,
+not by truncation; it is not an OS memory quota. Programmatic free-text producers
+must redact secrets. Breaking JSON semantics require a new schema version.
+No configuration, plugin discovery, new analyzers, dogfooding or Phase 12+ work
+was added. Phase 11 remains uncommitted; the full hosted Windows/Ubuntu Python
+3.13/3.14 matrix remains a closure requirement after publication. See
+[reporting](reporting.md) for the complete contract and compatibility limitations.

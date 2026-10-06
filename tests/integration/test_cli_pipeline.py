@@ -23,7 +23,7 @@ from repolens.infrastructure.repository_source import RepositoryLease, Repositor
 
 @pytest.fixture
 def repository(tmp_path: Path) -> Path:
-    root = tmp_path / "inert-secret-name"
+    root = tmp_path / "inert-reference"
     root.mkdir()
     assert GitRunner().run(("init", "--quiet"), root, 10).returncode == 0
     (root / "app.py").write_text(
@@ -191,7 +191,7 @@ def test_remote_cli_uses_canonical_url_and_cleans_before_execution_on_all_exits(
     assert str(fake.workspace) not in output.out + output.err
     assert not (repository / "executed-marker").exists()
     if failure == "none":
-        assert not output.err and "Assessment: complete" in output.out
+        assert not output.err and "Assessment: available" in output.out
     else:
         assert not output.out
 
@@ -207,7 +207,7 @@ def test_missing_production_bandit_yields_unsupported_without_crash(
     assert cli.run(["scan", str(repository), "--fail-under", "0"]) == 1
     output = capsys.readouterr()
     assert not output.err
-    assert "python-security (unsupported)" in output.out
+    assert "python-security (security): unsupported" in output.out
     assert "Overall score: unavailable" in output.out
     assert "Score gate: unavailable" in output.out
     assert not (repository / "executed-marker").exists()
@@ -228,7 +228,7 @@ def test_analyzer_failure_is_structured_incomplete_not_internal_error(
     assert cli.run(["scan", str(repository)]) == 1
     output = capsys.readouterr()
     assert not output.err
-    assert "python-security (failed)" in output.out
+    assert "python-security (security): failed" in output.out
     assert "secret" not in output.out
 
 
@@ -291,7 +291,7 @@ def test_unsupported_yaml_remains_incomplete_and_never_executes(
     monkeypatch.setattr(cli, "BanditRunner", MagicMock(return_value=scanner))
     assert cli.run(["scan", str(repository)]) == 1
     output = capsys.readouterr()
-    assert not output.err and "ci-static (unsupported)" in output.out
+    assert not output.err and "ci-static (ci_cd): unsupported" in output.out
     assert "secret" not in output.out
     assert not (repository / "executed-marker").exists()
 

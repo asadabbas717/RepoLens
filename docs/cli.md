@@ -2,7 +2,7 @@
 
 Phase 10 exposes the installed console entry point `repolens = repolens.cli:main`.
 It uses standard-library argparse and the unchanged product scoring mechanism.
-There is no reporting framework or configuration loader. `run(argv)` is a small
+Phase 11 adds pure console/JSON/HTML reporting; there is no configuration loader. `run(argv)` is a small
 testable shell boundary returning scan status; normal argparse help/version and
 argument failures raise SystemExit with their conventional codes. The entry point
 passes actual arguments and exits with the returned status.
@@ -49,7 +49,7 @@ Bandit is not required for that irrelevant work.
 The sole command is:
 
 ```bash
-repolens scan SOURCE [--fail-under SCORE]
+repolens scan SOURCE [--fail-under SCORE] [--format console|json|html] [--output PATH]
 ```
 
 For example, this explicitly requests public remote acquisition:
@@ -58,8 +58,13 @@ For example, this explicitly requests public remote acquisition:
 repolens scan https://github.com/owner/project.git --fail-under 85
 ```
 
+Console is default; console/JSON use stdout unless --output is supplied. HTML
+requires --output. File output accepts a new file in an existing parent only,
+without overwriting or implicitly creating directories. See
+[reporting](reporting.md) for schema 1, publication and presentation semantics.
+
 No authentication/token, arbitrary Git URL, stdin archive, multiple-source,
-format/output-file, config, plugin, exclusion or per-rule options exist. A future
+config, plugin, exclusion or per-rule options exist. A future
 severity gate in the master roadmap is not implemented here; the Phase 10 gate
 is deliberately limited to the overall score.
 
@@ -186,16 +191,19 @@ so it makes assessment incomplete (exit 1), not an input-processing exception.
 An ordinary analyzer failure is also exit 1, not the internal failure path.
 KeyboardInterrupt and SystemExit propagate; no BaseException catch is used.
 
-## Minimal operational output
+## Report output
 
-Normal assessment status is stdout; input/internal failures are stderr. The
-summary shows complete/incomplete, policy ID, overall score or unavailable,
-finding count (INFO remains retained), dependency-audit omission, unavailable
-analyzer IDs/states if present, and requested gate outcome. It prints no individual
-findings, raw reasons, source snippets, repository names/paths, credentials,
-temporary roots or tool diagnostics. A completed assessment is not a claim that
-all practices passed. Score 100 receives no positive grade or certification.
+Phase 11 replaces the minimal summary with three deterministic projections of
+AnalysisReport. Console displays all findings, evidence, recommendations, category
+deductions and controlled analyzer reasons. JSON schema 1 is complete machine data;
+HTML is standalone escaped text with embedded CSS. Reports expose suitable public
+repository basenames, never absolute or temporary roots. No source excerpts or raw
+tool/OS diagnostics are added. See [reporting](reporting.md) for identity checks
+and the producer redaction contract; arbitrary free text is not a secret detector.
 
-Output ordering is deterministic, without timestamps or random IDs. This small
-summary is not a stable reporting schema; Phase 11 will own console/JSON/HTML
-presentation. No renderer interfaces, file outputs, colors or templates exist yet.
+Normal stdout contains only the selected report. File output leaves stdout empty;
+input/internal/output errors remain sanitized stderr. Incomplete or gate-failed
+assessments still render, then return 1. Rendering/publication problems return 2
+or unexpected-error 3, superseding assessment status. Console appends a requested
+score-gate footer; JSON/HTML gate status remains in process exit. No timestamp,
+TTY, color or locale behavior changes output. Score 100 receives no certification.

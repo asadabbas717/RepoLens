@@ -1,4 +1,4 @@
-"""Argparse shell boundary and explicit product composition; no report renderer."""
+"""Argparse composition, report selection/publication and stable shell outcomes."""
 
 import argparse
 import re
@@ -22,11 +22,16 @@ from repolens.domain.security import BanditScan, SecurityToolFailed
 from repolens.infrastructure.analysis_context import snapshot_analysis_context
 from repolens.infrastructure.bandit import BanditRunner
 from repolens.infrastructure.errors import AcquisitionError, InvalidSource
+from repolens.infrastructure.report_output import OutputError, prepare_output, publish_report
 from repolens.infrastructure.repository_source import (
     RepositorySource,
     SourceKind,
     canonical_github_url,
 )
+from repolens.reporting.console import render_console
+from repolens.reporting.html_report import render_html
+from repolens.reporting.json_report import render_json
+from repolens.reporting.view import ReportingError, bounded_text
 
 _SCOPE = (
     "Python-first static assessment; no target code or workflows are executed. "
@@ -68,6 +73,19 @@ def _parser() -> argparse.ArgumentParser:
         type=_threshold,
         metavar="SCORE",
         help="fail if the overall score is unavailable or below SCORE (0..100, up to two decimals)",
+    )
+    scan.add_argument(
+        "--format",
+        choices=("console", "json", "html"),
+        default="console",
+        help="console (default), JSON schema 1 or standalone HTML (requires --output)",
+    )
+    scan.add_argument(
+        "--output", metavar="PATH", help="new UTF-8 report file; existing paths are rejected"
+    )
+    scan.epilog = (
+        f"Policy: {PYTHON_STATIC_V1.identifier}. Exits 0/1/2/3 are unchanged. "
+        "Incomplete or gate-failed assessments still emit the requested report."
     )
     parser.epilog = f"Policy: {PYTHON_STATIC_V1.identifier}. See 'repolens scan --help'."
     return parser
@@ -121,28 +139,21 @@ def _scan(source: _Source) -> AnalysisReport:
 
 def _status(report: AnalysisReport, threshold: Decimal | None) -> int:
     value = report.score.value
-    print("Assessment: " + ("complete" if value is not None else "incomplete"))
-    print(f"Policy: {report.policy.identifier}")
-    print(f"Overall score: {value if value is not None else 'unavailable'}")
-    print(f"Findings: {len(report.findings)} (INFO observations are retained)")
-    print("Dependency vulnerability auditing: not included in the default assessment.")
-    unavailable = sorted(
-        identifier
-        for category in report.score.categories
-        for identifier in category.unavailable_analyzers
-    )
-    if unavailable:
-        states = {result.analyzer.identifier: result.state.value for result in report.results}
-        print(
-            "Unavailable analyzers: "
-            + ", ".join(
-                f"{identifier} ({states.get(identifier, 'missing')})" for identifier in unavailable
-            )
-        )
-    if threshold is not None:
-        gate = "unavailable" if value is None else "met" if value >= threshold else "not met"
-        print(f"Score gate: {gate}")
     return 1 if value is None or (threshold is not None and value < threshold) else 0
+
+
+def _emit(text: str, destination: Path | None) -> None:
+    if destination is not None:
+        publish_report(destination, text)
+        return
+    try:
+        # Binary UTF-8 avoids locale encodings and Windows newline translation.
+        raw = text.encode("utf-8")
+        if sys.stdout.buffer.write(raw) != len(raw):
+            raise OutputError("Report stdout write was incomplete")
+        sys.stdout.buffer.flush()
+    except (OSError, UnicodeError):
+        raise OutputError("Report stdout could not be written") from None
 
 
 def run(argv: Sequence[str]) -> int:
@@ -151,12 +162,40 @@ def run(argv: Sequence[str]) -> int:
         arguments = _parser().parse_args(argv)
         source = arguments.source
         threshold = arguments.fail_under
-        if not isinstance(source, str) or (
-            threshold is not None and not isinstance(threshold, Decimal)
+        output = arguments.output
+        format_name = arguments.format
+        if (
+            not isinstance(source, str)
+            or (threshold is not None and not isinstance(threshold, Decimal))
+            or (output is not None and not isinstance(output, str))
+            or format_name not in ("console", "json", "html")
         ):
             raise TypeError("Invalid parsed scan values")
+        if format_name == "html" and output is None:
+            raise OutputError("HTML requires an output destination")
+        destination = prepare_output(Path(output)) if output is not None else None
         report = _scan(_classify_source(source))
-        return _status(report, threshold)
+        exit_code = _status(report, threshold)
+        if format_name == "console":
+            text = render_console(report)
+            if threshold is not None:
+                gate = (
+                    "unavailable"
+                    if report.score.value is None
+                    else "not met"
+                    if exit_code
+                    else "met"
+                )
+                text = bounded_text((text, f"Score gate: {gate}\n"))
+        elif format_name == "json":
+            text = render_json(report)
+        else:
+            text = render_html(report)
+        _emit(text, destination)
+        return exit_code
+    except (OutputError, ReportingError):
+        print("repolens: report output could not be completed safely.", file=sys.stderr)
+        return 2
     except (AcquisitionError, SecurityToolFailed):
         print("repolens: source acquisition or input processing failed safely.", file=sys.stderr)
         return 2

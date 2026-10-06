@@ -40,7 +40,7 @@ def assessment(
         if spec.identifier == "python-security" and missing:
             continue
         if spec.identifier == "python-security" and state != AnalyzerState.COMPLETED:
-            results.append(AnalyzerResult(spec, state, reason="secret raw reason must not print"))
+            results.append(AnalyzerResult(spec, state, reason="Controlled unavailable work"))
         elif spec.category == Category.CODE_QUALITY:
             finding = Finding(
                 "python-static:example",
@@ -48,8 +48,8 @@ def assessment(
                 spec.category,
                 Severity.LOW,
                 "Controlled observation",
-                "Secret source must not print",
-                (Evidence("secret snippet must not print"),),
+                "Controlled AST observation",
+                (Evidence("Controlled structural evidence"),),
                 "Review",
                 spec.identifier,
             )
@@ -57,7 +57,7 @@ def assessment(
         else:
             results.append(AnalyzerResult(spec, AnalyzerState.COMPLETED))
     return AnalysisReport(
-        Repository("secret-repository-name"), plan.specs, tuple(results), PYTHON_STATIC_V1
+        Repository("reference-repository"), plan.specs, tuple(results), PYTHON_STATIC_V1
     )
 
 
@@ -180,7 +180,7 @@ def test_score_gate_above_equal_below_and_extremes(
     assert cli.run(argv) == exit_code
     output = capsys.readouterr()
     assert not output.err
-    assert "Assessment: complete" in output.out
+    assert "Assessment: available" in output.out
     assert "Overall score: 98.75" in output.out
     assert "Findings: 1" in output.out
     assert "not included" in output.out
@@ -205,9 +205,9 @@ def test_unavailable_analysis_is_never_a_successful_gate(
     assert cli.run(argv) == 1
     output = capsys.readouterr()
     assert not output.err
-    assert "Assessment: incomplete" in output.out
+    assert "Assessment: unavailable" in output.out
     assert "Overall score: unavailable" in output.out
-    assert f"python-security ({state.value})" in output.out
+    assert f"python-security (security): {state.value}" in output.out
     assert "secret" not in output.out
     if threshold is not None:
         assert "Score gate: unavailable" in output.out
@@ -218,7 +218,7 @@ def test_missing_planned_result_remains_visible_and_incomplete(
 ) -> None:
     monkeypatch.setattr(cli, "_scan", MagicMock(return_value=assessment(missing=True)))
     assert cli.run(["scan", "."]) == 1
-    assert "python-security (missing)" in capsys.readouterr().out
+    assert "python-security (security): missing" in capsys.readouterr().out
 
 
 @pytest.mark.parametrize(
@@ -328,8 +328,10 @@ def test_unexpected_parser_failure_is_also_internal_and_sanitized(
 @pytest.mark.parametrize(
     "namespace",
     [
-        argparse.Namespace(source=1, fail_under=None),
-        argparse.Namespace(source=".", fail_under=85.0),
+        argparse.Namespace(source=1, fail_under=None, output=None, format="console"),
+        argparse.Namespace(source=".", fail_under=85.0, output=None, format="console"),
+        argparse.Namespace(source=".", fail_under=None, output=1, format="console"),
+        argparse.Namespace(source=".", fail_under=None, output=None, format="unknown"),
     ],
 )
 def test_invalid_internal_namespace_is_not_accepted_as_user_input(

@@ -6,7 +6,7 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phases 0 through 10 provide packaging, development tooling, tests, CI, immutable
+Phases 0 through 11 provide packaging, development tooling, tests, CI, immutable
 domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
 deterministic sequential orchestration and a path-only repository-hygiene analyzer.
 It observes root ignore-policy paths and ASCII case collisions using bounded data.
@@ -32,14 +32,14 @@ scores, including dependency auditing when declared. A Bandit-only plan does not
 establish dependency security. See [calibration](docs/scoring-calibration.md).
 The first installed command is `repolens scan SOURCE [--fail-under SCORE]`.
 It uses a single bounded inventory and detached Python/workflow snapshots, then
-closes acquisition before analysis. A short operational summary reports usable
-or incomplete assessment; detailed console/JSON/HTML reporting is deferred.
+closes acquisition before analysis. One typed report now drives full plain-text
+console, versioned JSON schema 1 and escaped standalone HTML output.
 Missing optional Bandit makes applicable security work incomplete and returns
 exit 1. Dependency auditing is intentionally outside the default five-analyzer
 plan. See [CLI](docs/cli.md) for source forms, install, gate and exit codes.
 The development version is `0.1.0.dev0`; this is
 not a released product.
-Phase 9 hosted verification passed all four jobs. Phase 10 hosted verification
+Phase 10 hosted verification passed all four jobs. Phase 11 hosted verification
 remains pending publication.
 
 ## Planned v1 scope
@@ -80,6 +80,19 @@ uv run --locked repolens scan "C:/projects/example" --fail-under 85.50
 
 Target code is never executed. Normal findings do not fail a complete assessment
 without a requested gate; incomplete work always returns exit 1.
+
+Report choices after setup (examples, not a claim of self-dogfooding):
+
+```bash
+uv run --locked repolens scan .
+uv run --locked repolens scan . --format json
+uv run --locked repolens scan . --format html --output repolens-report.html
+```
+
+HTML requires a new output path; existing files are never overwritten. Incomplete
+and gate-failed scans still emit the requested report and return exit 1. JSON
+overall values are exact decimal strings or null, with explicit availability.
+See [reporting](docs/reporting.md) for schema, safety and output compatibility.
 See [scoring](docs/scoring.md) for outcome states, scope, arithmetic and limitations.
 See [acquisition](docs/acquisition.md) for source lifetime, exclusions, Git
 isolation and practical safety limitations. The acquisition API is not an OS sandbox.

@@ -2,7 +2,7 @@
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
 The `domain`, acquisition `infrastructure`, orchestration `application` and
-concrete `analyzers` packages and outer `cli.py` module exist after Phase 10.
+concrete `analyzers`, pure `reporting` and outer `cli.py` module exist after Phase 11.
 Add further boundaries when implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
@@ -12,7 +12,7 @@ Add further boundaries when implementations arrive.
 | analyzers | Concrete static checks producing domain findings | Domain and analysis context |
 | infrastructure | Filesystem, Git acquisition, external-tool adapters | Domain/application contracts |
 | reporting | Console/JSON/HTML rendering of one report | Domain; no independent scoring |
-| cli | Argument validation, product composition, minimal status and exit codes | Application, analyzers, infrastructure and domain; reporting deferred |
+| cli | Argument validation, product composition, output selection and exit codes | Application, analyzers, infrastructure, domain and reporting |
 
 No domain dependency on CLI libraries, subprocess, filesystem traversal, or
 external-tool models. Analyzer contracts are a justified extensibility boundary;
@@ -186,10 +186,10 @@ See [workflow data](workflow-data.md), [CI/CD rules](rules/ci-cd.md) and ADR 000
 ## CLI composition (Phase 10)
 
 The outer cli.py owns argparse validation, source classification, explicit default
-plan, adapter construction, scored report and minimal status/exit mapping. Neither
+plan, adapter construction, scored report and status/exit mapping. Neither
 domain nor application, infrastructure or analyzers depend on CLI concepts.
 `repolens.cli:main` is the installed entry point; `run(argv)` isolates shell behavior.
-There is no command framework, configuration system or renderer abstraction.
+There is no command framework or configuration system; report formats use simple functions.
 
 The combined infrastructure.analysis_context builder inventories once, completes
 Python/workflow admission, then reuses private admission/read/decoding functions
@@ -205,6 +205,30 @@ UNSUPPORTED, never a clean score. Existing execute_analyzers and AnalysisReport
 receive all outcomes and PYTHON_STATIC_V1 directly, with unchanged arithmetic.
 
 Decimal `--fail-under` compares the final score exactly. Incomplete results fail
-closed. Operational status omits uncontrolled repository identity/diagnostics;
-full reporting remains Phase 11. See [CLI contract](cli.md) for exact syntax,
+closed. Phase 11 reporting exposes only suitable public identity and producer-redacted
+evidence/reasons. See [CLI contract](cli.md) for exact syntax,
 resource ceilings, exits, scope and limitations. No mandatory dependency was added.
+
+## Report projection and publication (Phase 11)
+
+reporting.view builds one frozen presentation projection for public identity,
+planned outcomes (including missing results) and outside-scope categories. JSON,
+console and HTML functions depend only on domain/report values plus the package
+version constant. They preserve already-derived scores and evidence; domain,
+application and analyzers remain rendering-independent. There is no renderer
+inheritance framework or new scoring model. JSON schema 1 is an intentional
+external structure with exact decimal strings/null and compatibility tests.
+
+HTML uniformly escapes text and uses only embedded CSS; console renders control
+characters visibly. A common public-basename guard excludes transport/path-shaped
+identities in every format. Shipped analyzer reasons are controlled; redaction
+remains producer-owned rather than inconsistent per-format heuristics. A shared
+explicit 64 MiB serialization ceiling fails before emission, never truncates.
+
+File writing belongs only to infrastructure.report_output and the CLI boundary.
+It validates before acquisition, writes a complete UTF-8/LF sibling and atomically
+links to an absent destination without overwriting. Existing links/reparse entries
+are rejected. Unsupported hard-link storage fails closed; user-owned parents must
+remain stable. I/O and cleanup failures are sanitized exit 2. Assessment/gate
+failure still emits a report before returning 1. See [reporting](reporting.md)
+for the full schema, privacy, determinism, resource and filesystem limitations.

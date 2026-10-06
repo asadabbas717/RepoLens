@@ -26,8 +26,10 @@ Keep changes small enough to review and do not declare unavailable gates passed.
    full hosted matrix verified after publication.
 10. CLI: implemented argparse scan/help/version, installed entry point, one-inventory
     detached composition, fixed product plan and exact score gate with exits 0/1/2/3;
-    hosted closure requires publication and a successful full matrix.
-11. Reporting: console, versioned JSON and escaped standalone accessible HTML.
+    full hosted matrix verified after publication.
+11. Reporting: implemented full deterministic console, JSON schema 1, escaped
+    standalone HTML and no-overwrite output publication; hosted verification
+    remains required after publication.
 12. Configuration: validated TOML, exclusions, rule controls and thresholds.
 13. Dogfooding: self-scan plus clean/poor/non-Python fixtures and a public example.
 14. Release: all gates, audit, clean install, smoke test, docs and owner-selected license.
@@ -53,5 +55,8 @@ mechanics or analyzer severities. Documentation/maintainability and dependency
 vulnerability auditing remain unassessed/unavailable as documented. Phase 9 hosted
 verification passed all four jobs for `2fabe8851c9b535bad44c90e9071fef975298f94` in
 [Quality run 37480478013](https://github.com/asadabbas717/RepoLens/actions/runs/37480478013).
-Phase 10 adds the first operational command with minimal status only. Phase 11
-will add report presentation and versioned serialization; no Phase 11 code exists.
+Phase 10 adds the first operational command and its full matrix passed for
+`4daa1b230b31a616279f00e346d6168c939a649c` in
+[Quality run 37484518174](https://github.com/asadabbas717/RepoLens/actions/runs/37484518174).
+Phase 11 projects one report into three formats without changing scoring or
+analysis. Phase 12 will add validated configuration; no Phase 12 code exists.
