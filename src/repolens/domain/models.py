@@ -7,6 +7,7 @@ from enum import StrEnum
 from repolens.domain.dependency_manifest import MANIFEST_PATHS, DependencyManifestSnapshot
 from repolens.domain.paths import require_relative_file_path as require_relative_file_path
 from repolens.domain.python_source import PythonSourceSnapshot, is_python_path
+from repolens.domain.workflow import WorkflowSnapshot, is_workflow_path
 
 
 class Severity(StrEnum):
@@ -95,6 +96,7 @@ class AnalysisContext:
     inventory: FileInventory | None = None
     python_sources: PythonSourceSnapshot | None = None
     dependency_manifests: DependencyManifestSnapshot | None = None
+    workflows: WorkflowSnapshot | None = None
 
     def __post_init__(self) -> None:
         if self.inventory is not None and not isinstance(self.inventory, FileInventory):
@@ -114,6 +116,12 @@ class AnalysisContext:
             expected = tuple(path for path in self.inventory.paths if path in MANIFEST_PATHS)
             if tuple(entry.path for entry in self.dependency_manifests.files) != expected:
                 raise ValueError("Manifest paths must exactly match supported inventory paths")
+        if self.workflows is not None:
+            if not isinstance(self.workflows, WorkflowSnapshot) or self.inventory is None:
+                raise ValueError("Workflow data requires a valid snapshot and inventory")
+            expected = tuple(path for path in self.inventory.paths if is_workflow_path(path))
+            if tuple(entry.path for entry in self.workflows.files) != expected:
+                raise ValueError("Workflow paths must exactly match selected inventory paths")
 
 
 @dataclass(frozen=True, slots=True)

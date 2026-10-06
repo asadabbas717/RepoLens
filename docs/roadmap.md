@@ -19,7 +19,8 @@ Keep changes small enough to review and do not declare unavailable gates passed.
    interpretation deferred, no claimed executed coverage.
 7. Security/dependencies: implemented detached optional Bandit and bounded direct
    declarations; vulnerability auditing deferred for missing structured severity.
-8. CI/CD: safely parse GitHub Actions and state runtime inference limitations.
+8. CI/CD: implemented bounded non-constructing GitHub Actions YAML and three
+   static observations; runtime inference remains deliberately unavailable.
 9. Scoring calibration: documented sample fixtures and regression tests.
 10. CLI: help, validation and defined success/gate/input/internal-error exit codes.
 11. Reporting: console, versioned JSON and escaped standalone accessible HTML.
@@ -40,4 +41,5 @@ with reviewed read/encoding/grammar limits. Phase 6 adds static testing
 structure advisories without running target tests or claiming executed coverage.
 Phase 7 adds reviewed optional detached Bandit and bounded root dependency
 declarations; pip-audit target execution remains deferred with explicit unsupported
-outcomes. Phase 8 will analyze GitHub Actions safely; no Phase 8 code is present.
+outcomes. Phase 8 adds bounded GitHub Actions data and conservative static observations.
+Phase 9 will calibrate scoring with reviewed fixtures; no Phase 9 code is present.

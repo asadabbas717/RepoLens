@@ -2,7 +2,7 @@
 
 RepoLens is a modular Python application, initially a CLI/static-analysis tool.
 The `domain`, acquisition `infrastructure`, orchestration `application` and
-concrete `analyzers` packages exist after Phase 7. Add further boundaries when implementations arrive.
+concrete `analyzers` packages exist after Phase 8. Add further boundaries when implementations arrive.
 
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
@@ -54,7 +54,7 @@ outside this phase.
 - Report fields can become API commitments: version JSON and test serialization.
 - Dependency updates can break reproducibility: commit uv.lock and review updates.
 
-There is no runtime dependency now. Typer/Rich, a safe YAML parser, and Jinja2
+PyYAML is the sole runtime dependency, for non-constructing workflow parsing. Typer/Rich, a safe YAML parser, and Jinja2
 remain candidates, not committed dependencies. Add each only with a concrete
 requirement and maintenance/security review.
 
@@ -158,3 +158,19 @@ static exact pins; DependencyAuditAnalyzer exposes unavailable vulnerability
 auditing honestly. No resolver, target pip invocation, severity invention or
 scoring default is added. See [security rules](rules/security.md),
 [dependency audit](dependency-audit.md) and ADR 0006 for explicit limits.
+
+
+## GitHub Actions data and static CI/CD (Phase 8)
+
+WorkflowFile/WorkflowSnapshot carry bounded hidden-repr UTF-8 text and exact
+relative inventory membership. A dedicated workflow builder inventories once,
+uses existing verified reads and publishes no partial data. Other snapshots,
+Git/process isolation and generic orchestration remain unchanged.
+
+The CI analyzer uses a pure PyYAML BaseLoader event admission/node composition
+layer, not constructors or implicit scalar typing. Structural bounds, duplicate
+keys and unsupported YAML features cannot masquerade as clean. Normalization
+retains only safe observation locations for three typed catalog rules: eligible
+workflow absence, non-full-SHA remote refs and explicit write-all declarations.
+Neither Actions execution nor complete schema/runtime inference is implemented.
+See [workflow data](workflow-data.md), [CI/CD rules](rules/ci-cd.md) and ADR 0007.

@@ -49,7 +49,8 @@ must be reported. Builds must succeed and clean wheel installation must work.
 | build | Verify wheel and source distribution construction |
 | uv (bootstrap tool) | Lock resolution and reproducible environment synchronization |
 
-Runtime dependencies are empty. Lock changes deliberately with `uv lock`, then
+The sole runtime dependency is PyYAML>=6.0.3,<7 for safe workflow parsing.
+types-PyYAML is a development-only strict-typing dependency. Lock changes deliberately with `uv lock`, then
 run every gate. CI uses locked development/build tools and `--no-isolation`
 for reproducible package builds, as do the local gates above. Review direct and
 transitive dependency changes.
@@ -508,8 +509,66 @@ missing optional Bandit produced UNSUPPORTED as designed. No dependency, lock,
 workflow, Git runner, orchestration, scoring arithmetic or severity changes were
 made. Whitespace and scope review passed. No Phase 8 functionality was added.
 
-Phase 7 is uncommitted. Local Windows checks do not establish the hosted
-Windows/Ubuntu Python 3.13/3.14 matrix; that remains a closure requirement after
-publication. Target vulnerability auditing is intentionally deferred because
+Phase 7 was subsequently published and verified by the hosted matrix below. Target vulnerability auditing is intentionally deferred because
 native pip-audit advisory JSON lacks structured impact severity. This limitation
 is visible as UNSUPPORTED, never a clean security result.
+
+
+## Phase 7 hosted verification (2026-10-06)
+
+[Quality run 37456714218](https://github.com/asadabbas717/RepoLens/actions/runs/37456714218)
+completed successfully for `7401b9de3af198de3dc528815c597a0300a006a1`.
+All four Windows/Ubuntu Python 3.13/3.14 jobs succeeded. This closes Phase 7;
+it does not establish hosted verification of uncommitted Phase 8 changes.
+
+
+## Phase 8 local verification (2026-10-06)
+
+Locked synchronization, Ruff formatting/lint, strict mypy, the existing Bandit
+gate, dependency audit and source/wheel builds passed. Both Windows CPython
+3.13.15 and 3.14.7 ran 754 cases: 753 passed and the existing real-symlink
+privilege case skipped. Statement/branch coverage was 99.40% on 3.13 and 99.38%
+on 3.14. The CI analyzer, workflow domain values and scoring are fully covered;
+YAML projection and workflow snapshot infrastructure retain near-complete coverage.
+
+The 148 added cases cover exact selection and near matches, immutable membership,
+byte/count/aggregate limits, complete admission, UTF-8/BOM, lifetime, read/type/link
+changes, escape rejection, YAML scalar spelling, anchors/aliases/tags/directives,
+duplicates, structural budgets, step/job action forms, self/local/Docker refs,
+permissions, expressions, controlled evidence, ordering and inert acquired-source
+report composition. No normal test needs network. Existing package metadata
+assertions now require exactly the reviewed PyYAML runtime constraint rather than
+historical zero dependencies; accidental additional runtime dependencies remain
+rejected. Existing quality thresholds, warning handling and assertions were retained.
+
+The established sandbox workaround remains:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase8-final --cov --cov-report=term-missing
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase8-py314.coverage uv run --locked --python 3.14 pytest --basetemp=.pytest_cache/phase8-py314-final --cov --cov-report=term-missing
+```
+
+PyYAML 6.0.3 was promoted from development-transitive to direct runtime dependency,
+with supported constraint >=6.0.3,<7. Development-only types-PyYAML is locked at
+6.0.12.20260906; other resolved versions were unchanged. The audited 49-package
+group had no known vulnerabilities; unpublished RepoLens was skipped. Bandit
+reported zero medium/high and retains the two reviewed LOW subprocess imports and
+existing targeted Git/Python launch suppressions. No security gate was weakened.
+
+The built wheel and pinned PyYAML installed in the isolated smoke environment;
+imports, dependency metadata and a real detached CI002 observation passed under
+isolated Python. Offline installation initially lacked the PyYAML wheel cache;
+that dependency was downloaded separately, then the sandbox-owned RepoLens wheel
+installed without index/dependency access. This is RepoLens installation, not any
+target build/install/execution. GitHub reference semantics were verified against
+current official documentation; tests remain entirely independent of that network.
+Whitespace and scope review passed. Acquisition/read/process security, orchestration,
+scoring arithmetic and prior analyzer semantics were unchanged. No Phase 9 work
+or production scoring policy was added.
+
+Phase 8 remains uncommitted. Local Windows checks do not establish hosted
+Windows/Ubuntu Python 3.13/3.14 verification; that matrix remains a closure
+requirement after publication. Some valid GitHub/YAML features are intentionally
+unsupported, as documented in workflow-data and CI/CD rules; parsed structure
+never proves GitHub acceptance or successful execution.

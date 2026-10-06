@@ -6,7 +6,7 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phases 0 through 7 provide packaging, development tooling, tests, CI, immutable
+Phases 0 through 8 provide packaging, development tooling, tests, CI, immutable
 domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
 deterministic sequential orchestration and a path-only repository-hygiene analyzer.
 It observes root ignore-policy paths and ASCII case collisions using bounded data.
@@ -19,6 +19,9 @@ Optional pinned Bandit now scans owned detached Python data with normalized,
 secret-safe observations. Bounded root dependency manifests are parsed statically;
 target vulnerability auditing remains explicitly unavailable.
 See [security rules](docs/rules/security.md) and [dependency audit](docs/dependency-audit.md).
+GitHub Actions YAML now reaches a static CI/CD analyzer through bounded detached
+workflow data, with three conservative observations and no workflow execution.
+See [workflow data](docs/workflow-data.md) and [CI/CD rules](docs/rules/ci-cd.md).
 No scanning command is implemented yet. The development version is `0.1.0.dev0`; this is
 not a released product.
 
