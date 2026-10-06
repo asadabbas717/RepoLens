@@ -5,13 +5,17 @@ This document records the Phase 14 pre-publication audit of development version
 completion report after publication; a commit cannot embed its own SHA. Phase 14
 subsequently passed all four jobs for `be672b29ac79ff0c37d92ffa83615674cef3769f` in
 [Quality run 37515155025](https://github.com/asadabbas717/RepoLens/actions/runs/37515155025).
-No software release has occurred. Status vocabulary: PASS, BLOCKED, OWNER ACTION.
+The earlier evidence predates the first software release. Status vocabulary:
+PASS, BLOCKED, OWNER ACTION, OWNER AUTHORIZED.
 
 **PUBLIC SOURCE REPOSITORY — COMPLETE.** RepoLens is public on GitHub, Apache-2.0
 is active and engineering roadmap 0–14 is complete. **FIRST SOFTWARE RELEASE —
-NOT YET PERFORMED.** Version remains 0.1.0.dev0. Version promotion, tag, GitHub
-Release, registry publication and future release automation are separate owner
-decisions, not consequences of making the source public.
+0.1.0 APPROVED.** Package/runtime version is now 0.1.0. Tag v0.1.0 and normal public
+GitHub Release "RepoLens 0.1.0" are authorized only after the exact release commit's
+four hosted jobs pass. GitHub Release creation remains pending until performed;
+the completion report records its public URL and verified state. PyPI/registry
+publication is not performed or authorized. Older pre-release results below retain
+their original versions/dates for chronology.
 
 RepoLens is licensed under [Apache License 2.0](../LICENSE). The canonical text and
 SPDX package metadata resolve the former owner-license blocker. Historical audit
@@ -34,14 +38,14 @@ paragraphs below record the state and evidence before this licensing transition.
 | Repository / history / security audit | PASS: 239 reachable historical blobs reviewed heuristically; fixture flags explained, no real secret/artifact identified; boundaries unchanged |
 | Exact Phase 14 hosted matrix | PASS: `be672b2`, Quality 37515155025, all four jobs |
 | Owner-selected license | PASS: owner selected Apache-2.0; canonical root LICENSE and PEP 639 metadata |
-| Release version | OWNER ACTION: retain 0.1.0.dev0 until explicit version approval |
+| Release version | PASS: owner approved 0.1.0; package/runtime/lock updated consistently |
 | Repository visibility / contributions | PASS: asadabbas717/RepoLens is public, default main; Apache-2.0 contributions; licensed public baseline bb3c0c0 |
-| Tag / GitHub Release | OWNER ACTION: none created |
+| Tag / GitHub Release | OWNER AUTHORIZED: v0.1.0 / RepoLens 0.1.0; pending exact release-SHA CI and publication |
 | Registry publication | OWNER ACTION: none; package name/registry availability and publication identity remain decisions |
 
 ## Preserved contracts and metadata
 
-Package name, development version, Python >=3.13 baseline, setuptools backend,
+Package name, Python >=3.13 baseline, setuptools backend,
 src package discovery, console entry `repolens = repolens.cli:main` and py.typed
 remain appropriate. Existing installed metadata tests verify runtime requirements
 and version consistency. Minimal metadata is intentional: there is no authoritative
@@ -237,3 +241,29 @@ Description/topics can be set manually via GitHub's About edit control; recommen
 description: "Static, evidence-based repository engineering-quality analysis for
 Python projects." Topics: python, static-analysis, code-quality, security,
 developer-tools, github-actions. No metadata mutation was performed by this pass.
+
+## First GitHub release authorization (2026-10-07)
+
+The public-state synchronization commit
+`ce185bd8d1b3f3ed516b4f625adb737507456fbc` passed all four jobs in
+[Quality run 37532612417](https://github.com/asadabbas717/RepoLens/actions/runs/37532612417).
+The owner subsequently approved version 0.1.0, annotated tag v0.1.0 and a normal
+public GitHub Release. Earlier statements that version/tag/release were unauthorized
+or unperformed record those earlier audits; this authorization supersedes them.
+
+Release order is unchanged: local gates, reviewed version commit, normal main push,
+exact-SHA green four-job matrix, annotated tag at that SHA, tag push/independent
+target verification, then GitHub Release creation and anonymous verification.
+A tag/release collision must stop publication; existing tags are never overwritten.
+No release automation or registry credentials are added. Source tag and GitHub
+source archives suffice; no manually attached wheel/sdist assets are planned.
+Policy, JSON/config schemas, analyzer plan and exit codes are unchanged.
+
+The release-local suites each passed 1,213 tests with one existing skip on Python
+3.13.15/3.14.7; coverage was 99.62% / 99.58%. Ruff, strict mypy, Bandit, dependency
+audit and fresh builds passed. Actual 0.1.0 wheel/sdist metadata/license/runtime
+contracts and external installation were verified. The self-scan remains 88.75
+with unchanged deducted rules; extra accepted test observations since Phase 14
+are explained in [development verification](development.md). Tag and GitHub Release
+must still wait for the exact release commit's hosted matrix; the final completion
+report supplies immutable commit/run/tag-target/release evidence.

@@ -25,7 +25,7 @@ An existing built wheel can be installed in a separate environment:
 ```bash
 python -m venv .venv-cli
 source .venv-cli/Scripts/activate
-python -m pip install dist/repolens-0.1.0.dev0-py3-none-any.whl
+python -m pip install dist/repolens-0.1.0-py3-none-any.whl
 repolens --help
 repolens --version
 repolens scan "C:/projects/example"

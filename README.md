@@ -3,7 +3,8 @@
 RepoLens statically assesses Python Git repositories and language-independent
 repository hygiene and GitHub Actions signals. It produces deterministic findings
 with relative file/line evidence, recommendations and transparent score deductions.
-The development build is `0.1.0.dev0`; it is not a published release.
+RepoLens `0.1.0` is the first public release. GitHub source is the distribution
+channel; no PyPI/package-registry publication has occurred.
 
 ## Current status
 
@@ -13,7 +14,8 @@ all four hosted Windows/Linux Python 3.13/3.14 jobs through Phase 14 commit
 [readiness](docs/release-readiness.md) and [dogfooding](docs/dogfooding.md).
 RepoLens is a public GitHub source repository licensed under Apache-2.0. The
 licensed public baseline `bb3c0c0` passed all four hosted jobs. The software remains
-development version `0.1.0.dev0`; no formal software/package release has occurred.
+version `0.1.0`. The owner approved Git tag `v0.1.0` and a normal GitHub Release
+after the exact release commit's hosted matrix passes. Registry publication is separate.
 
 ## Implemented assessment scope
 
@@ -110,12 +112,12 @@ cannot establish runtime correctness or prove a repository is secure.
 ## Development and contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
-See [Unreleased changes](CHANGELOG.md) and the
+See [release changes](CHANGELOG.md) and the
 [owner-action checklist](docs/release-readiness.md). Intentionally submitted
 contributions follow the project's Apache-2.0 terms and engineering requirements.
 
 ## License
 
 RepoLens is licensed under the Apache License 2.0. See [LICENSE](LICENSE).
-Public source publication is separate from version promotion, tags, GitHub Releases
-and package-registry publication; none of those software-release actions occurred.
+The first software release is `0.1.0` on GitHub. Package-registry publication and
+future release automation remain separate owner decisions.

@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-Initial development capability, version `0.1.0.dev0`:
+## 0.1.0 - 2026-10-07
+
+First public release on GitHub:
 
 - Safe local Git and public HTTPS GitHub acquisition with bounded detached data.
 - Repository hygiene, Python AST, static testing and GitHub Actions observations.
@@ -18,5 +20,6 @@ Documentation/Maintainability analysis, target dependency vulnerability auditing
 private authentication and other-language code analysis are not implemented.
 Target code/tests/builds/workflows are never executed; target coverage is not measured.
 Licensed under Apache-2.0 and publicly available as GitHub source. No software
-release has occurred; version promotion, tags, GitHub Releases and package
-publication remain separate decisions.
+release is published to a package registry. Static findings and scores are not
+correctness/security certification. Tag v0.1.0 and GitHub Release RepoLens 0.1.0
+are the approved first software-release channel; registry publication is separate.

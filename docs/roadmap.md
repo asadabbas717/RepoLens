@@ -80,5 +80,6 @@ commit `be672b29ac79ff0c37d92ffa83615674cef3769f` passed all four jobs in
 Apache-2.0 is active and public source transition is complete. Licensed public
 baseline `bb3c0c051395c89ac288f61c6e8171207400323c` passed all four jobs in
 [Quality run 37528410790](https://github.com/asadabbas717/RepoLens/actions/runs/37528410790).
-Version remains 0.1.0.dev0; version promotion, tags, GitHub Releases and registry
-publication are not performed. No Phase 15 is introduced.
+The owner now approved first software version 0.1.0, tag v0.1.0 and GitHub Release
+RepoLens 0.1.0 after release-commit CI. Registry publication is not performed.
+This is release history, not a Phase 15 or a new feature phase.

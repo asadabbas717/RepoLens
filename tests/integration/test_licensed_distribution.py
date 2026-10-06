@@ -37,7 +37,7 @@ def test_clean_build_includes_canonical_license_without_runtime_contract_changes
         "Repository, https://github.com/asadabbas717/RepoLens",
         "Issues, https://github.com/asadabbas717/RepoLens/issues",
     }
-    prefix = "repolens-0.1.0.dev0"
+    prefix = "repolens-0.1.0"
     with zipfile.ZipFile(output / f"{prefix}-py3-none-any.whl") as wheel:
         info = f"{prefix}.dist-info/"
         assert wheel.read(info + "licenses/LICENSE") == canonical
@@ -45,7 +45,7 @@ def test_clean_build_includes_canonical_license_without_runtime_contract_changes
         assert data["License-Expression"] == "Apache-2.0"
         assert data.get_all("License-File") == ["LICENSE"]
         assert set(data.get_all("Project-URL") or ()) == project_urls
-        assert data["Version"] == "0.1.0.dev0"
+        assert data["Version"] == "0.1.0"
         assert data.get_all("Requires-Dist") == ["PyYAML<7,>=6.0.3"]
         assert data["Requires-Python"] == ">=3.13"
         assert wheel.read("repolens/py.typed") == b""

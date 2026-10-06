@@ -949,3 +949,37 @@ execution. A current-state exposure recheck found no new issue; historical fixtu
 flags remain deliberate inert data. The synchronization commit's exact hosted
 matrix must pass before final 0.1.0 candidate readiness is reported. Version stays
 0.1.0.dev0; no tag, software release or registry publication was performed.
+
+## First GitHub software release preparation (2026-10-07)
+
+Synchronization commit `ce185bd8d1b3f3ed516b4f625adb737507456fbc` passed all four
+jobs in [Quality run 37532612417](https://github.com/asadabbas717/RepoLens/actions/runs/37532612417).
+The owner then approved first release version 0.1.0 and tag v0.1.0. Runtime,
+pyproject and root lock version are promoted together; dependency versions,
+scoring policy, JSON/config schemas, default plan and exit codes do not change.
+The tag and normal GitHub Release must wait for the exact version commit's hosted
+matrix. Publication is source-only on GitHub, without manually attached binaries,
+PyPI publication, registry tokens or release automation. Earlier 0.1.0.dev0 audit
+paragraphs remain historical evidence and are not rewritten as post-release checks.
+
+Release local checks passed on Windows CPython 3.13.15/3.14.7: each collected
+1,214 tests, with 1,213 passed and one existing real-symlink privilege skip.
+Combined coverage was 99.62% / 99.58%. Locked sync, Ruff format/check, strict
+mypy (89 files), Bandit and pip-audit passed; the latter skipped only the
+unpublished RepoLens 0.1.0 package and found no known vulnerabilities. Only the
+root RepoLens version changed in uv.lock; dependency versions stayed unchanged.
+
+Fresh artifacts are repolens-0.1.0.tar.gz and repolens-0.1.0-py3-none-any.whl.
+Inspection verified version, Apache-2.0/license bytes, public URLs, runtime
+requirements, console entry and typing marker, with no generated/private content.
+Fresh installation used an environment/cwd outside the checkout: CLI version/help,
+base environment without Bandit, supported Bandit 1.9.4, all controlled cases,
+all formats and complete-byte JSON repeats passed without target execution.
+
+Final self-scan returned 0 with all five analyzers completed, overall 88.75,
+security 70 and other categories 100. There were 930 observations: B101=921,
+B404=5, B603=3, B108=1. Relative to the Phase 14 907-observation baseline, the
+23 extra occurrences arise from subsequent licensing/public-metadata packaging
+tests: 21 assertions, one subprocess import and one trusted test-build launch.
+The LOW/LOW/LOW/MEDIUM rule deduction set remains 5/5/5/15, so score is unchanged.
+Version promotion adds no new analyzer/scoring condition or target execution.

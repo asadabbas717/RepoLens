@@ -7,7 +7,7 @@ import repolens
 
 
 def test_installed_distribution_version_matches_public_version() -> None:
-    assert version("repolens") == repolens.__version__
+    assert version("repolens") == repolens.__version__ == "0.1.0"
 
 
 def test_distribution_declares_python_baseline_and_only_reviewed_runtime_dependency() -> None:
