@@ -54,6 +54,29 @@ def _parts(report: AnalysisReport) -> Iterator[str]:
     ):
         yield f"<dt>{_e(label)}</dt><dd>{_e(value)}</dd>\n"
     yield "</dl>\n</header>\n<section>\n<h2>Policy and scope</h2>\n"
+    if report.configuration is not None:
+        applied = report.configuration
+        yield "<h3>Applied configuration</h3>\n<dl>\n"
+        for label, value in (
+            (
+                "Configuration schema",
+                str(applied.schema_version) if applied.schema_version is not None else "CLI only",
+            ),
+            ("Exclusions", ", ".join(applied.exclusions.entries) or "none"),
+            ("Disabled rules", ", ".join(applied.disabled_rules) or "none"),
+            (
+                "fail_under",
+                str(applied.gates.fail_under) if applied.gates.fail_under is not None else "unset",
+            ),
+            (
+                "fail_on_severity",
+                applied.gates.fail_on_severity.value
+                if applied.gates.fail_on_severity is not None
+                else "unset",
+            ),
+        ):
+            yield f"<dt>{_e(label)}</dt><dd>{_e(value)}</dd>\n"
+        yield "</dl><p>Findings and scores describe this configured eligible scope only.</p>\n"
     weights = {entry.category: entry.weight for entry in report.policy.weights}
     penalties = {entry.severity: entry.points for entry in report.policy.penalties}
     yield (

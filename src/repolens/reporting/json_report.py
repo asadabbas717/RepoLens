@@ -16,7 +16,7 @@ def report_document(report: AnalysisReport) -> dict[str, JSONValue]:
     view = project(report)
     penalties = {entry.severity: entry.points for entry in report.policy.penalties}
     weights = {entry.category: entry.weight for entry in report.policy.weights}
-    return {
+    document: dict[str, JSONValue] = {
         "schema_version": SCHEMA_VERSION,
         "tool": {"name": "RepoLens", "version": __version__},
         "repository": {"name": view.repository_name},
@@ -91,6 +91,22 @@ def report_document(report: AnalysisReport) -> dict[str, JSONValue]:
             for finding in report.findings
         ],
     }
+    if report.configuration is not None:
+        applied = report.configuration
+        document["configuration"] = {
+            "schema_version": applied.schema_version,
+            "exclusions": list(applied.exclusions.entries),
+            "disabled_rules": list(applied.disabled_rules),
+            "gates": {
+                "fail_under": str(applied.gates.fail_under)
+                if applied.gates.fail_under is not None
+                else None,
+                "fail_on_severity": applied.gates.fail_on_severity.value
+                if applied.gates.fail_on_severity is not None
+                else None,
+            },
+        }
+    return document
 
 
 def render_json(report: AnalysisReport) -> str:

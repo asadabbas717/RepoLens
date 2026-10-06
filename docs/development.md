@@ -761,6 +761,52 @@ complete destination while returning 2. A 64 MiB artifact ceiling fails explicit
 not by truncation; it is not an OS memory quota. Programmatic free-text producers
 must redact secrets. Breaking JSON semantics require a new schema version.
 No configuration, plugin discovery, new analyzers, dogfooding or Phase 12+ work
-was added. Phase 11 remains uncommitted; the full hosted Windows/Ubuntu Python
-3.13/3.14 matrix remains a closure requirement after publication. See
+was added. Phase 11 was subsequently published and verified by the matrix below. See
 [reporting](reporting.md) for the complete contract and compatibility limitations.
+
+## Phase 11 hosted verification (2026-10-06)
+
+[Quality run 37501851987](https://github.com/asadabbas717/RepoLens/actions/runs/37501851987)
+completed successfully for `e8f412a635559012ee32df2479966780b9bf6825`.
+All four Windows/Ubuntu Python 3.13/3.14 jobs succeeded, confirmed from hosted
+job states. This closes Phase 11; it does not verify Phase 12 changes.
+
+## Phase 12 local verification (2026-10-06)
+
+138 added cases bring collection to 1,158. Both local Windows CPython 3.13.15 and
+3.14.7 passed 1,157 cases with the existing real-symlink privilege case skipped.
+Combined statement/branch coverage was 99.62% on 3.13 and 99.58% on 3.14.
+Configuration values, parsing, gates, bounded file loading, traversal, CLI and
+configured reporting are fully covered. Existing warning and coverage gates remain
+unchanged; the unchanged publication module retains its previously documented
+Python 3.14 finally-exit coverage difference.
+
+Locked synchronization passed for both environments. Ruff format/check and strict
+mypy passed (85 source/test files). Bandit found zero medium/high issues; existing
+reviewed LOW subprocess imports and targeted launch suppressions are unchanged.
+The locked development dependency audit found no known vulnerabilities, skipping
+only unpublished RepoLens. Wheel/source builds and whitespace checks passed.
+No dependencies or lock entries changed.
+
+The latest wheel was reinstalled without index/dependency access into the smoke
+environment containing only pip, PyYAML and RepoLens. Installed help/version and
+scan help passed. Configured console, JSON and HTML scans exercised exclusions,
+exact rule suppression and disclosed configuration metadata. Missing Bandit still
+produced UNSUPPORTED security, an unavailable score and exit 1 where applicable.
+An excluded Python scope made security NOT_APPLICABLE; an INFO severity gate
+returned 1 and a CLI CRITICAL override returned 0 for a usable score of 100.
+Hostile target configuration was not discovered, target dependencies were not
+installed and the target execution marker remained absent.
+
+Reproduce the local coverage runs from Git Bash:
+
+```bash
+source .venv-bootstrap/Scripts/activate
+uv run --locked pytest --basetemp=.pytest_cache/phase12-final2 --cov --cov-report=term-missing
+UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase12-py314.coverage uv run --locked --python 3.14 pytest --basetemp=.pytest_cache/phase12-py314-final2 --cov --cov-report=term-missing
+```
+
+Scope review confirms unchanged scoring policy, analyzer plan and security
+boundaries. No dogfooding or Phase 13 functionality was added. These changes are
+uncommitted: Phase 12 hosted CI remains pending, so the milestone is not yet closed.
+See [configuration](configuration.md) for exact contracts and known limitations.

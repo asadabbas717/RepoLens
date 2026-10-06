@@ -8,7 +8,7 @@ Add further boundaries when implementations arrive.
 | Boundary | Responsibility | Dependencies |
 | --- | --- | --- |
 | domain | Immutable typed findings, evidence, severity, results, scores | Standard library only |
-| application | Deterministic analyzer orchestration and scan use cases | Domain and explicit adapter contracts |
+| application | Generic orchestration, product configuration/result selection and gates | Domain/contracts; product configuration also reads fixed shipped rule metadata |
 | analyzers | Concrete static checks producing domain findings | Domain and analysis context |
 | infrastructure | Filesystem, Git acquisition, external-tool adapters | Domain/application contracts |
 | reporting | Console/JSON/HTML rendering of one report | Domain; no independent scoring |
@@ -189,7 +189,8 @@ The outer cli.py owns argparse validation, source classification, explicit defau
 plan, adapter construction, scored report and status/exit mapping. Neither
 domain nor application, infrastructure or analyzers depend on CLI concepts.
 `repolens.cli:main` is the installed entry point; `run(argv)` isolates shell behavior.
-There is no command framework or configuration system; report formats use simple functions.
+There is no command framework; explicit schema-1 configuration is added in Phase 12.
+Report formats use simple functions.
 
 The combined infrastructure.analysis_context builder inventories once, completes
 Python/workflow admission, then reuses private admission/read/decoding functions
@@ -232,3 +233,27 @@ are rejected. Unsupported hard-link storage fails closed; user-owned parents mus
 remain stable. I/O and cleanup failures are sanitized exit 2. Assessment/gate
 failure still emits a report before returning 1. See [reporting](reporting.md)
 for the full schema, privacy, determinism, resource and filesystem limitations.
+
+## Explicit applied configuration (Phase 12)
+
+domain.assessment_configuration contains immutable exclusions, gates and applied
+metadata, with no TOML/catalog/CLI dependency. AnalysisReport optionally retains
+those facts and rejects active findings contradicting disabled IDs. Generic scoring
+is unchanged. application.configuration parses strict TOML into typed values,
+validates static IDs against fixed shipped catalogs and performs one immutable
+result selection step. This product module's catalog dependency is deliberate;
+generic orchestration and analyzers remain configuration-independent. Vendor IDs
+use syntax validation only. application.gates evaluates process outcomes over
+existing active findings and scores, independent of policy arithmetic.
+
+infrastructure.configuration_file reads only an explicitly named bounded regular
+file, rejecting links/reparse/UNC/parent spellings and sanitizing resource errors.
+CLI applies per-field override precedence before acquisition. User ExclusionPolicy
+enters traversal and the combined builder before selected reads, preserving one
+coherent inventory and authoritative built-in security limits. No discovery,
+target execution, dynamic loading, analyzer disabling or capability invention exists.
+
+All formats disclose normalized scope/disabled IDs/effective gates through the
+same report. Optional JSON metadata is an additive schema-1 extension under its
+existing compatibility promise. Default no-config/no-gate bytes remain unchanged.
+See [configuration](configuration.md) for schema, trust, limits and gate semantics.

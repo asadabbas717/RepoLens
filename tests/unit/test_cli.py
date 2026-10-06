@@ -340,10 +340,24 @@ def test_invalid_internal_namespace_is_not_accepted_as_user_input(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     parser = MagicMock()
+    namespace.config = None
+    namespace.fail_on_severity = None
     parser.parse_args.return_value = namespace
     monkeypatch.setattr(cli, "_parser", MagicMock(return_value=parser))
     assert cli.run(["scan", "."]) == 3
     assert "unexpected internal" in capsys.readouterr().err
+
+
+def test_invalid_cli_severity_is_sanitized_before_acquisition(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    scan = MagicMock()
+    monkeypatch.setattr(cli, "_scan", scan)
+    with pytest.raises(SystemExit) as raised:
+        cli.run(["scan", ".", "--fail-on-severity", "secret-invalid-severity"])
+    assert raised.value.code == 2
+    assert "secret" not in capsys.readouterr().err
+    scan.assert_not_called()
 
 
 @pytest.mark.parametrize("signal", [KeyboardInterrupt(), SystemExit(7)])

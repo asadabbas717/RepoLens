@@ -4,7 +4,7 @@ import argparse
 import re
 import sys
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
 from typing import NoReturn
@@ -15,12 +15,22 @@ from repolens.analyzers.hygiene import RepositoryHygieneAnalyzer
 from repolens.analyzers.python_security import PythonSecurityAnalyzer
 from repolens.analyzers.python_static import PythonStaticAnalyzer
 from repolens.analyzers.testing_static import TestingStaticAnalyzer
+from repolens.application.configuration import select_results
+from repolens.application.gates import evaluate_gates
 from repolens.application.orchestration import AnalyzerPlan, execute_analyzers
 from repolens.application.scoring_policy import PYTHON_STATIC_V1
+from repolens.domain.assessment_configuration import (
+    AppliedConfiguration,
+    ConfigurationError,
+    GateSettings,
+    parse_score_threshold,
+)
+from repolens.domain.models import Severity
 from repolens.domain.report import AnalysisReport
 from repolens.domain.security import BanditScan, SecurityToolFailed
 from repolens.infrastructure.analysis_context import snapshot_analysis_context
 from repolens.infrastructure.bandit import BanditRunner
+from repolens.infrastructure.configuration_file import load_configuration
 from repolens.infrastructure.errors import AcquisitionError, InvalidSource
 from repolens.infrastructure.report_output import OutputError, prepare_output, publish_report
 from repolens.infrastructure.repository_source import (
@@ -47,13 +57,19 @@ class _Parser(argparse.ArgumentParser):
 
 
 def _threshold(value: str) -> Decimal:
-    # A small literal grammar rejects exponent notation and hidden precision.
-    if re.fullmatch(r"[0-9]+(?:\.[0-9]{1,2})?", value, flags=re.ASCII) is None:
-        raise argparse.ArgumentTypeError("Expected a score from 0 to 100 with at most two decimals")
-    threshold = Decimal(value)
-    if not threshold.is_finite() or not 0 <= threshold <= 100:
-        raise argparse.ArgumentTypeError("Expected a finite score from 0 to 100")
-    return threshold
+    try:
+        return parse_score_threshold(value)
+    except ConfigurationError:
+        raise argparse.ArgumentTypeError(
+            "Expected a score from 0 to 100 with at most two decimals"
+        ) from None
+
+
+def _severity(value: str) -> Severity:
+    try:
+        return Severity(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("Expected info, low, medium, high or critical") from None
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -68,6 +84,17 @@ def _parser() -> argparse.ArgumentParser:
         allow_abbrev=False,
     )
     scan.add_argument("source", metavar="SOURCE", help="local Git path or public GitHub HTTPS URL")
+    scan.add_argument(
+        "--config",
+        metavar="PATH",
+        help="explicit schema-1 TOML; target configuration is never auto-loaded",
+    )
+    scan.add_argument(
+        "--fail-on-severity",
+        type=_severity,
+        metavar="LEVEL",
+        help="fail on active findings at or above info|low|medium|high|critical; overrides config",
+    )
     scan.add_argument(
         "--fail-under",
         type=_threshold,
@@ -122,7 +149,7 @@ def default_analyzer_plan(scanner: BanditScan) -> AnalyzerPlan:
     )
 
 
-def _scan(source: _Source) -> AnalysisReport:
+def _scan(source: _Source, configuration: AppliedConfiguration | None = None) -> AnalysisReport:
     acquisition = RepositorySource()
     resource = (
         acquisition.local(Path(source.value))
@@ -130,16 +157,24 @@ def _scan(source: _Source) -> AnalysisReport:
         else acquisition.github(source.value)
     )
     with resource as lease:
-        context = snapshot_analysis_context(lease)
+        context = (
+            snapshot_analysis_context(lease, exclusions=configuration.exclusions)
+            if configuration is not None and configuration.exclusions.entries
+            else snapshot_analysis_context(lease)
+        )
         plan = default_analyzer_plan(BanditRunner(origin_root=lease.root))
     # Remote workspaces are already deleted. Analyzers receive detached data only.
     results = execute_analyzers(plan, context)
-    return AnalysisReport(context.repository, plan.specs, results, PYTHON_STATIC_V1)
+    if configuration is not None:
+        results = select_results(results, configuration.disabled_rules)
+    return AnalysisReport(context.repository, plan.specs, results, PYTHON_STATIC_V1, configuration)
 
 
 def _status(report: AnalysisReport, threshold: Decimal | None) -> int:
-    value = report.score.value
-    return 1 if value is None or (threshold is not None and value < threshold) else 0
+    severity = (
+        report.configuration.gates.fail_on_severity if report.configuration is not None else None
+    )
+    return int(evaluate_gates(report, GateSettings(threshold, severity)).failed)
 
 
 def _emit(text: str, destination: Path | None) -> None:
@@ -164,35 +199,66 @@ def run(argv: Sequence[str]) -> int:
         threshold = arguments.fail_under
         output = arguments.output
         format_name = arguments.format
+        config_path = arguments.config
+        severity = arguments.fail_on_severity
         if (
             not isinstance(source, str)
             or (threshold is not None and not isinstance(threshold, Decimal))
             or (output is not None and not isinstance(output, str))
             or format_name not in ("console", "json", "html")
+            or (config_path is not None and not isinstance(config_path, str))
+            or (severity is not None and not isinstance(severity, Severity))
         ):
             raise TypeError("Invalid parsed scan values")
         if format_name == "html" and output is None:
             raise OutputError("HTML requires an output destination")
         destination = prepare_output(Path(output)) if output is not None else None
-        report = _scan(_classify_source(source))
+        configured = (
+            load_configuration(Path(config_path)).applied if config_path is not None else None
+        )
+        gates = GateSettings(
+            threshold
+            if threshold is not None
+            else configured.gates.fail_under
+            if configured is not None
+            else None,
+            severity
+            if severity is not None
+            else configured.gates.fail_on_severity
+            if configured is not None
+            else None,
+        )
+        applied = (
+            replace(configured, gates=gates)
+            if configured is not None
+            else AppliedConfiguration(gates=gates)
+            if gates.fail_under is not None or gates.fail_on_severity is not None
+            else None
+        )
+        report = (
+            _scan(_classify_source(source), applied)
+            if applied is not None
+            else _scan(_classify_source(source))
+        )
+        threshold = gates.fail_under
         exit_code = _status(report, threshold)
         if format_name == "console":
             text = render_console(report)
             if threshold is not None:
-                gate = (
-                    "unavailable"
-                    if report.score.value is None
-                    else "not met"
-                    if exit_code
-                    else "met"
+                text = bounded_text((text, f"Score gate: {evaluate_gates(report, gates).score}\n"))
+            if gates.fail_on_severity is not None:
+                text = bounded_text(
+                    (text, f"Severity gate: {evaluate_gates(report, gates).severity}\n")
                 )
-                text = bounded_text((text, f"Score gate: {gate}\n"))
         elif format_name == "json":
             text = render_json(report)
         else:
             text = render_html(report)
         _emit(text, destination)
         return exit_code
+    except ConfigurationError:
+        print("repolens: configuration could not be loaded safely.", file=sys.stderr)
+        return 2
     except (OutputError, ReportingError):
         print("repolens: report output could not be completed safely.", file=sys.stderr)
         return 2

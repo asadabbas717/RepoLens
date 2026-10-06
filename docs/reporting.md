@@ -32,8 +32,8 @@ acquisition or output-processing failure, and 3 for unexpected internal failure.
 An incomplete or gate-failed assessment still emits its full requested report
 before returning 1. Rendering/publication failure takes precedence (2/3).
 Thresholds remain exact Decimal comparisons of the final domain score.
-Console includes a requested score-gate status footer; JSON/HTML contain only the
-AnalysisReport, with gate outcome conveyed by process exit. No report rescoring
+Console includes requested gate status footers; JSON/HTML expose effective settings
+in optional applied metadata, with outcomes conveyed by process exit. No report rescoring
 occurs. Argparse help/version perform no acquisition or analysis.
 
 ## Intentional JSON contract
@@ -50,6 +50,7 @@ The top-level keys, in serialized order, are:
 | categories | One entry for every in-policy category, including unavailable work |
 | analyzers | One entry for every planned analyzer, including missing results |
 | findings | Every retained finding, including INFO |
+| configuration (optional) | Configuration schema/null, exclusions, disabled rules and effective gates; appended in Phase 12 |
 
 Policy penalties are `{severity: string, points: integer}` entries, weights are
 `{category: string, weight: integer}` entries. The full policy values are preserved
@@ -116,6 +117,10 @@ Identical reports and software version yield byte-identical UTF-8/LF output on
 Windows/Linux; locale, terminal size, TTY status and clock do not affect output.
 
 **Breaking JSON field, type or semantic changes require a new schema version.**
+Phase 12 uses the already documented additive-extension rule to append optional
+configuration metadata. Existing required fields/types/semantics and no-config
+default report bytes are unchanged; compatibility tests lock that decision. See
+[configuration](configuration.md) for the exact object and independent schema.
 Additive optional fields can be introduced within schema 1; consumers should
 ignore unknown fields and compare schema_version before interpreting known fields.
 Consumers must not assume object key order is semantically significant, despite

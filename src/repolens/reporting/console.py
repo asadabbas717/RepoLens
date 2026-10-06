@@ -17,6 +17,27 @@ def _lines(report: AnalysisReport) -> Iterator[str]:
     yield f"Overall score: {value}"
     yield f"Findings: {len(report.findings)} (including INFO observations)"
     yield ""
+    if report.configuration is not None:
+        applied = report.configuration
+        yield "Applied configuration"
+        version = str(applied.schema_version) if applied.schema_version is not None else "CLI only"
+        yield f"  Configuration schema: {version}"
+        yield "  Exclusions: " + (
+            ", ".join(visible_text(e) for e in applied.exclusions.entries) or "none"
+        )
+        yield "  Disabled rules: " + (", ".join(applied.disabled_rules) or "none")
+        threshold = (
+            str(applied.gates.fail_under) if applied.gates.fail_under is not None else "unset"
+        )
+        severity = (
+            applied.gates.fail_on_severity.value
+            if applied.gates.fail_on_severity is not None
+            else "unset"
+        )
+        yield f"  fail_under: {threshold}"
+        yield f"  fail_on_severity: {severity}"
+        yield "  Findings and scores describe this configured eligible scope only."
+        yield ""
     yield "Categories"
     for score in report.score.categories:
         value = str(score.value) if score.value is not None else "unavailable"

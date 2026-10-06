@@ -1,5 +1,6 @@
 """One inventory and complete admission for the default detached product data."""
 
+from repolens.domain.assessment_configuration import ExclusionPolicy
 from repolens.domain.models import AnalysisContext, FileInventory
 from repolens.infrastructure.errors import AcquisitionError
 from repolens.infrastructure.python_source import (
@@ -16,6 +17,8 @@ def snapshot_analysis_context(
     lease: RepositoryLease,
     python_limits: PythonSourceLimits | None = None,
     traversal_limits: TraversalLimits | None = None,
+    *,
+    exclusions: ExclusionPolicy | None = None,
 ) -> AnalysisContext:
     """Admit all required data before any read; no partial or atomic-snapshot claim.
 
@@ -26,7 +29,8 @@ def snapshot_analysis_context(
     traversal_limits = traversal_limits or TraversalLimits()
     try:
         entries = [
-            (path.as_posix(), size) for path, size in repository_file_sizes(lease, traversal_limits)
+            (path.as_posix(), size)
+            for path, size in repository_file_sizes(lease, traversal_limits, exclusions=exclusions)
         ]
         sources = _admit_python_sources(entries, python_limits, traversal_limits)
         workflows = _admit_workflows(entries, traversal_limits)

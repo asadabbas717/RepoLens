@@ -6,6 +6,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
+from repolens.domain.assessment_configuration import ExclusionPolicy
 from repolens.infrastructure.errors import AcquisitionError, TraversalLimitExceeded
 from repolens.infrastructure.repository_source import RepositoryLease
 
@@ -64,6 +65,8 @@ def _excluded_directory(path: Path) -> bool:
 def repository_file_sizes(
     lease: RepositoryLease,
     limits: TraversalLimits | None = None,
+    *,
+    exclusions: ExclusionPolicy | None = None,
 ) -> Iterator[tuple[Path, int]]:
     """Yield bounded relative regular-file metadata; no content reads.
 
@@ -71,6 +74,7 @@ def repository_file_sizes(
     for later unchecked reads. No .gitignore parsing or binary content sniffing.
     """
     limits = limits or TraversalLimits()
+    exclusions = exclusions or ExclusionPolicy()
     root = lease.root
     stack = [(root, 0)]
     visited = 0
@@ -92,23 +96,31 @@ def repository_file_sizes(
                 if path.name == ".git" or _link_or_reparse(path):
                     continue
                 metadata = path.lstat()
+                relative = path.relative_to(root)
                 if stat.S_ISDIR(metadata.st_mode):
-                    if _excluded_directory(path):
+                    if _excluded_directory(path) or exclusions.prunes_directory(
+                        relative.as_posix()
+                    ):
                         continue
                     if depth + 1 > limits.max_depth:
                         raise TraversalLimitExceeded("Repository depth limit exceeded")
                     stack.append((path, depth + 1))
-                elif stat.S_ISREG(metadata.st_mode):
-                    yield path.relative_to(root), metadata.st_size
+                elif stat.S_ISREG(metadata.st_mode) and not exclusions.excludes_file(
+                    relative.as_posix()
+                ):
+                    yield relative, metadata.st_size
     except OSError:
         raise AcquisitionError("Repository inventory became inaccessible") from None
 
 
 def repository_files(
-    lease: RepositoryLease, limits: TraversalLimits | None = None
+    lease: RepositoryLease,
+    limits: TraversalLimits | None = None,
+    *,
+    exclusions: ExclusionPolicy | None = None,
 ) -> Iterator[Path]:
     """Yield eligible relative files, retaining Phase 2's oversized-file omission."""
     limits = limits or TraversalLimits()
-    for path, size in repository_file_sizes(lease, limits):
+    for path, size in repository_file_sizes(lease, limits, exclusions=exclusions):
         if size <= limits.max_file_bytes:
             yield path

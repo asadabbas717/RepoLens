@@ -6,7 +6,7 @@ with transparent scoring and recommendations.
 
 ## Current status
 
-Phases 0 through 11 provide packaging, development tooling, tests, CI, immutable
+Phases 0 through 12 provide packaging, development tooling, tests, CI, immutable
 domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
 deterministic sequential orchestration and a path-only repository-hygiene analyzer.
 It observes root ignore-policy paths and ASCII case collisions using bounded data.
@@ -39,7 +39,7 @@ exit 1. Dependency auditing is intentionally outside the default five-analyzer
 plan. See [CLI](docs/cli.md) for source forms, install, gate and exit codes.
 The development version is `0.1.0.dev0`; this is
 not a released product.
-Phase 10 hosted verification passed all four jobs. Phase 11 hosted verification
+Phase 11 hosted verification passed all four jobs. Phase 12 hosted verification
 remains pending publication.
 
 ## Planned v1 scope
@@ -93,6 +93,15 @@ HTML requires a new output path; existing files are never overwritten. Incomplet
 and gate-failed scans still emit the requested report and return exit 1. JSON
 overall values are exact decimal strings or null, with explicit availability.
 See [reporting](docs/reporting.md) for schema, safety and output compatibility.
+Explicit --config now supports bounded literal exclusions, exact rule disabling
+and score/severity gates. Target config is never auto-loaded. CLI gate values
+override their corresponding file values; all formats disclose effective settings
+with additive optional metadata under JSON schema 1. See
+[configuration](docs/configuration.md) for the complete schema and trust model.
+
+```bash
+uv run --locked repolens scan "C:/projects/example" --config policy.toml --fail-on-severity high --format json
+```
 See [scoring](docs/scoring.md) for outcome states, scope, arithmetic and limitations.
 See [acquisition](docs/acquisition.md) for source lifetime, exclusions, Git
 isolation and practical safety limitations. The acquisition API is not an OS sandbox.

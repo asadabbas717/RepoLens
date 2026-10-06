@@ -2,7 +2,7 @@
 
 Phase 10 exposes the installed console entry point `repolens = repolens.cli:main`.
 It uses standard-library argparse and the unchanged product scoring mechanism.
-Phase 11 adds pure console/JSON/HTML reporting; there is no configuration loader. `run(argv)` is a small
+Phase 11 adds reporting; Phase 12 adds explicit validated configuration. `run(argv)` is a small
 testable shell boundary returning scan status; normal argparse help/version and
 argument failures raise SystemExit with their conventional codes. The entry point
 passes actual arguments and exits with the returned status.
@@ -49,7 +49,7 @@ Bandit is not required for that irrelevant work.
 The sole command is:
 
 ```bash
-repolens scan SOURCE [--fail-under SCORE] [--format console|json|html] [--output PATH]
+repolens scan SOURCE [--config PATH] [--fail-under SCORE] [--fail-on-severity LEVEL] [--format console|json|html] [--output PATH]
 ```
 
 For example, this explicitly requests public remote acquisition:
@@ -64,9 +64,10 @@ without overwriting or implicitly creating directories. See
 [reporting](reporting.md) for schema 1, publication and presentation semantics.
 
 No authentication/token, arbitrary Git URL, stdin archive, multiple-source,
-config, plugin, exclusion or per-rule options exist. A future
-severity gate in the master roadmap is not implemented here; the Phase 10 gate
-is deliberately limited to the overall score.
+plugin or arbitrary per-rule severity options exist. Explicit schema-1 TOML
+supplies literal exclusions and exact disabled rules; settings are never discovered
+in the target or host environment. See [configuration](configuration.md) for the
+bounded input contract, complete schema and CLI precedence.
 
 ## Source classification and acquisition
 
@@ -172,11 +173,17 @@ digits, out-of-range values and more than two fractional digits are rejected.
 The gate is inclusive: score equal to threshold succeeds. Unavailable score
 always fails closed, even when the threshold is zero.
 
+`--fail-on-severity` fails when an active finding meets or exceeds the requested
+level in the explicit INFO, LOW, MEDIUM, HIGH, CRITICAL order. Disabled findings
+affect neither gate. Each CLI gate overrides its corresponding configuration
+field independently; an explicit zero score threshold also overrides the file.
+When both gates are requested, either failure returns 1. Reports still render.
+
 | Exit | Meaning |
 | --- | --- |
-| 0 | Numeric usable assessment; no gate requested or score >= threshold |
-| 1 | Incomplete/unavailable overall assessment, or score < requested threshold |
-| 2 | Invalid invocation/source or controlled acquisition/input processing failure |
+| 0 | Numeric usable assessment and all requested gates pass |
+| 1 | Incomplete/unavailable overall assessment, or either requested gate fails |
+| 2 | Invalid invocation/configuration/source or controlled acquisition/input/output failure |
 | 3 | Unexpected internal RepoLens composition/programming failure |
 
 Without a gate, ordinary findings alone do not fail a usable numeric assessment.
@@ -205,5 +212,6 @@ Normal stdout contains only the selected report. File output leaves stdout empty
 input/internal/output errors remain sanitized stderr. Incomplete or gate-failed
 assessments still render, then return 1. Rendering/publication problems return 2
 or unexpected-error 3, superseding assessment status. Console appends a requested
-score-gate footer; JSON/HTML gate status remains in process exit. No timestamp,
+score/severity gate footers; JSON/HTML gate status remains in process exit, with
+applied settings disclosed in report metadata. No timestamp,
 TTY, color or locale behavior changes output. Score 100 receives no certification.
