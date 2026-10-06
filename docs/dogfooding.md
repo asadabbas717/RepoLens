@@ -200,3 +200,11 @@ No license, version promotion, tag, release, package publication, repository
 visibility change, plugin, language or AI feature was introduced. Phase 14 remains
 unstarted. Existing grammar/budget, non-atomic read, generic Bandit messaging,
 limited CI structure and reduced-scope score limitations still apply.
+
+## Hosted closure
+
+The blockers above record the pre-publication state. Phase 13 was committed as
+`b495e84c4bc042b2f9eca291f93d4d180fb2ec2d`, and all Windows/Ubuntu Python 3.13/3.14
+jobs passed in [Quality run 37512872450](https://github.com/asadabbas717/RepoLens/actions/runs/37512872450).
+Phase 13 is closed. Owner decisions and final [release hardening](release-readiness.md)
+remain separate from this dogfooding evidence.

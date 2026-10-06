@@ -1,6 +1,7 @@
 """Verify the installed distribution contract rather than a source-path shortcut."""
 
 from importlib.metadata import entry_points, metadata, version
+from importlib.resources import files
 
 import repolens
 
@@ -21,3 +22,7 @@ def test_installed_console_entry_point_is_declared() -> None:
     )
     assert len(matches) == 1
     assert matches[0].value == "repolens.cli:main"
+
+
+def test_installed_package_contains_public_typing_marker() -> None:
+    assert files("repolens").joinpath("py.typed").is_file()

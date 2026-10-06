@@ -33,7 +33,8 @@ Keep changes small enough to review and do not declare unavailable gates passed.
 12. Configuration: implemented explicit bounded schema-1 TOML, literal exclusions,
     exact rule controls and score/severity gates with transparent applied metadata;
     full hosted matrix verified for `faca921` in Quality run 37509070101.
-13. Dogfooding: self-scan plus clean/poor/non-Python fixtures and a public example.
+13. Dogfooding: validated self-scan, clean/poor/non-Python fixtures and public example;
+    full hosted matrix verified for `b495e84` in Quality run 37512872450.
 14. Release: all gates, audit, clean install, smoke test, docs and owner-selected license.
 
 Release blockers include license selection and any known critical security issue.
@@ -67,4 +68,9 @@ Phase 12 adds explicit user configuration without implicit target trust or polic
 mutation; all four hosted jobs passed in
 [Quality run 37509070101](https://github.com/asadabbas717/RepoLens/actions/runs/37509070101).
 Phase 13 adds owned inert fixture validation and manual product evidence, documented
-in [dogfooding](dogfooding.md). Its hosted matrix remains required after publication.
+in [dogfooding](dogfooding.md). All four hosted jobs passed for
+`b495e84c4bc042b2f9eca291f93d4d180fb2ec2d` in
+[Quality run 37512872450](https://github.com/asadabbas717/RepoLens/actions/runs/37512872450).
+Phase 14 stabilizes and audits the existing product; see
+[release readiness](release-readiness.md). Public release still requires explicit
+owner licensing/version/visibility/publication decisions.

@@ -1,0 +1,21 @@
+# Changelog
+
+## Unreleased
+
+Initial development capability, version `0.1.0.dev0`:
+
+- Safe local Git and public HTTPS GitHub acquisition with bounded detached data.
+- Repository hygiene, Python AST, static testing and GitHub Actions observations.
+- Optional supported Bandit 1.9.4 scanning of owned detached Python material.
+- Immutable findings/results, explicit failure/applicability states and deterministic
+  `repolens-python-static-v1` heuristic scoring with per-rule deduction traces.
+- Installed CLI, console reports, JSON schema 1 and escaped standalone HTML.
+- Explicit configuration schema 1, literal exclusions, exact rule controls and
+  score/severity gates preserving unavailable analysis.
+- Owned fixture, installed-wheel and manual public-example validation.
+
+Documentation/Maintainability analysis, target dependency vulnerability auditing,
+private authentication and other-language code analysis are not implemented.
+Target code/tests/builds/workflows are never executed; target coverage is not measured.
+No release has occurred. Owner-selected licensing and publication decisions remain
+pending; this changelog grants no redistribution rights.

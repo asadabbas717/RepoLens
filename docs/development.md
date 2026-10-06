@@ -851,3 +851,39 @@ UV_PROJECT_ENVIRONMENT=.venv-phase5-py314 COVERAGE_FILE=.pytest_cache/phase13-py
 
 Phase 13 remains uncommitted and requires all four hosted jobs after publication
 before closure. No Phase 14 release work, license or visibility change occurred.
+
+## Phase 13 hosted closure
+
+The preceding paragraph records verification before publication. Commit
+`b495e84c4bc042b2f9eca291f93d4d180fb2ec2d` passed all four Windows/Ubuntu
+Python 3.13/3.14 jobs in
+[Quality run 37512872450](https://github.com/asadabbas717/RepoLens/actions/runs/37512872450).
+This closes Phase 13; it does not establish Phase 14's final hosted result.
+
+## Phase 14 final local verification
+
+Windows CPython 3.13.15 and 3.14.7 each collected 1,212 tests: 1,211 passed and
+one existing real-symlink privilege case skipped. Combined statement/branch
+coverage was 99.62% / 99.58%. The 33 new cases verify 32 local documentation
+files and installed py.typed presence. All previous product goldens and security
+checks remain active; thresholds and warning handling are unchanged.
+
+Locked sync, Ruff format/check and strict mypy (88 source/test files) passed.
+Bandit -r src -ll found zero medium/high findings; the two reviewed LOW imports
+and two targeted launch suppressions are unchanged. pip-audit found no known
+vulnerabilities, skipping only unpublished RepoLens. Source/wheel builds passed,
+including a clean extracted-sdist rebuild with identical wheel entry payloads.
+No production source, package metadata, dependency, lock, CI or contract changed.
+
+Fresh installed-wheel scans ran outside the checkout without development tools,
+first with only pip/PyYAML/RepoLens and then supported optional Bandit. Actual
+version/help, complete/incomplete states, all formats, configured gates, no target
+execution and exact JSON repeats passed. Final self-score remains 88.75, with
+three additional test-assert observations and no changed rule deductions.
+See [release readiness](release-readiness.md) for distribution/history/security
+reviews, evidence details and the owner-action blockers.
+
+This records pre-publication local checks. The exact Phase 14 commit must still
+pass all four hosted jobs, with the SHA/run recorded in the completion report.
+Version remains 0.1.0.dev0; no license, visibility, tag, release or registry action
+was performed.

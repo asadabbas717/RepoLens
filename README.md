@@ -7,42 +7,11 @@ The development build is `0.1.0.dev0`; it is not a published release.
 
 ## Current status
 
-Phases 0 through 12 provide packaging, development tooling, tests, CI, immutable
-domain models, explicit-policy scoring, local/public-GitHub acquisition APIs and
-deterministic sequential orchestration and a path-only repository-hygiene analyzer.
-It observes root ignore-policy paths and ASCII case collisions using bounded data.
-Python source now reaches an AST-only analyzer through a verified bounded text
-snapshot, with two conservative code-quality observations targeting 3.13 syntax.
-Static testing now observes conventional filenames and AST declarations through
-the same detached data, without executing tests or measuring target coverage.
-See [testing rules](docs/rules/testing.md) for exact conventions and limitations.
-Optional pinned Bandit now scans owned detached Python data with normalized,
-secret-safe observations. Bounded root dependency manifests are parsed statically;
-target vulnerability auditing remains explicitly unavailable.
-See [security rules](docs/rules/security.md) and [dependency audit](docs/dependency-audit.md).
-GitHub Actions YAML now reaches a static CI/CD analyzer through bounded detached
-workflow data, with three conservative observations and no workflow execution.
-See [workflow data](docs/workflow-data.md) and [CI/CD rules](docs/rules/ci-cd.md).
-The first explicit product policy, `repolens-python-static-v1`, assesses code
-quality, testing, security, hygiene and CI/CD. Documentation and maintainability
-remain unassessed. Penalties are 0/5/15/30/60 by ascending severity, with category
-weights 2/1/3/1/1. These are transparent engineering heuristics, not validated
-measurements. 100 means no deductive findings in completed supported scope;
-INFO advisories can still be present. Unavailable planned work blocks numeric
-scores, including dependency auditing when declared. A Bandit-only plan does not
-establish dependency security. See [calibration](docs/scoring-calibration.md).
-The first installed command is `repolens scan SOURCE [--fail-under SCORE]`.
-It uses a single bounded inventory and detached Python/workflow snapshots, then
-closes acquisition before analysis. One typed report now drives full plain-text
-console, versioned JSON schema 1 and escaped standalone HTML output.
-Missing optional Bandit makes applicable security work incomplete and returns
-exit 1. Dependency auditing is intentionally outside the default five-analyzer
-plan. See [CLI](docs/cli.md) for source forms, install, gate and exit codes.
-The development version is `0.1.0.dev0`; this is
-not a released product.
-Phase 12 hosted verification passed all four Windows/Linux Python 3.13/3.14 jobs
-for `faca921`. Phase 13 validates these capabilities through owned fixtures,
-installed-wheel scans and a manual public example; see [dogfooding](docs/dogfooding.md).
+The implemented CLI/configuration/reporting product passed Phase 13 dogfooding and
+all four hosted Windows/Linux Python 3.13/3.14 jobs for `b495e84`. Phase 14 audits
+release readiness; see [readiness](docs/release-readiness.md) and
+[dogfooding](docs/dogfooding.md). The repository remains private and unreleased.
+An open-source license has not been selected; publication is an owner decision.
 
 ## Implemented assessment scope
 
@@ -113,6 +82,13 @@ with additive optional metadata under JSON schema 1. See
 uv run --locked repolens scan "C:/projects/example" --config policy.toml --fail-on-severity high --format json
 ```
 See [scoring](docs/scoring.md) for outcome states, scope, arithmetic and limitations.
+The unchanged `repolens-python-static-v1` policy weights code quality/testing/
+security/hygiene/CI as 2/1/3/1/1, with INFO/LOW/MEDIUM/HIGH/CRITICAL penalties
+0/5/15/30/60. Each rule deducts once at its highest observed severity. Unavailable
+planned work blocks a numeric overall score; non-applicable work leaves the
+denominator. A score of 100 means no deductive findings in completed supported
+scope, not a correctness/security certification. Configuration changes disclosed
+scope, so differently configured scores must be interpreted accordingly.
 See [acquisition](docs/acquisition.md) for source lifetime, exclusions, Git
 isolation and practical safety limitations. The acquisition API is not an OS sandbox.
 See [orchestration](docs/orchestration.md) for registration, execution, failure
@@ -134,3 +110,6 @@ cannot establish runtime correctness or prove a repository is secure.
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 An open-source license has not yet been selected by the owner. Do not publish
 a release or assume redistribution rights until that decision is recorded.
+See [Unreleased changes](CHANGELOG.md) and the
+[owner-action checklist](docs/release-readiness.md). External contributions are
+not enabled before an explicit owner decision and licensing review.
