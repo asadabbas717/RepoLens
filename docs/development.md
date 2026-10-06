@@ -917,3 +917,35 @@ Public source visibility requires this licensed commit's exact four-job hosted
 matrix and final exposure audit. Version, policy, JSON/configuration schemas,
 default plan, target non-execution and exit codes are unchanged. Public source
 authorization does not authorize a tag, software release or registry publication.
+
+## Public-source transition closure (2026-10-07)
+
+The owner completed public visibility manually after licensed commit
+`bb3c0c051395c89ac288f61c6e8171207400323c` passed all four jobs in
+[Quality run 37528410790](https://github.com/asadabbas717/RepoLens/actions/runs/37528410790).
+Fresh anonymous REST, credential-isolated HTTPS Git HEAD and public canonical
+LICENSE access independently verified public visibility, main and the licensed
+lineage. Earlier authorization/pending paragraphs record the pre-transition state.
+Roadmap 0–14 and public source publication are complete; version stays 0.1.0.dev0.
+No formal software release, tag, registry publication or release automation occurred.
+
+## Public-state synchronization verification (2026-10-07)
+
+Public Repository/Issues package URLs returned anonymous HTTP 200. Installed
+metadata and clean trusted-source build tests now enforce those URLs alongside
+unchanged Apache-2.0, version/runtime dependency/entry-point and typing contracts.
+Windows CPython 3.13.15 and 3.14.7 each collected 1,214 cases: 1,213 passed with
+one existing privilege skip; combined coverage was 99.62% / 99.51%. Locked sync,
+Ruff format/check, strict mypy (89 files), Bandit, pip-audit and source/wheel builds
+passed. pip-audit found no known vulnerabilities, skipping only unpublished RepoLens.
+No dependencies, thresholds, production behavior or compatibility versions changed.
+
+Actual wheel/sdist METADATA/PKG-INFO URLs and canonical license bytes passed
+inspection (54 wheel entries / 68 source members). Fresh installed CLI checks
+used an environment and cwd outside the checkout, first with only pip/PyYAML/
+RepoLens, then supported Bandit 1.9.4. Complete/incomplete product states, all
+formats, configured controls and whole-byte JSON repeats passed without target
+execution. A current-state exposure recheck found no new issue; historical fixture
+flags remain deliberate inert data. The synchronization commit's exact hosted
+matrix must pass before final 0.1.0 candidate readiness is reported. Version stays
+0.1.0.dev0; no tag, software release or registry publication was performed.

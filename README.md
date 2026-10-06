@@ -11,8 +11,9 @@ The implemented CLI/configuration/reporting product passed Phase 13 dogfooding a
 all four hosted Windows/Linux Python 3.13/3.14 jobs through Phase 14 commit
 `be672b2`. Engineering roadmap 0–14 is complete; see
 [readiness](docs/release-readiness.md) and [dogfooding](docs/dogfooding.md).
-The owner selected Apache-2.0 and authorized public source publication after the
-licensed commit's checks pass. This remains unreleased development software.
+RepoLens is a public GitHub source repository licensed under Apache-2.0. The
+licensed public baseline `bb3c0c0` passed all four hosted jobs. The software remains
+development version `0.1.0.dev0`; no formal software/package release has occurred.
 
 ## Implemented assessment scope
 

@@ -7,12 +7,11 @@ subsequently passed all four jobs for `be672b29ac79ff0c37d92ffa83615674cef3769f`
 [Quality run 37515155025](https://github.com/asadabbas717/RepoLens/actions/runs/37515155025).
 No software release has occurred. Status vocabulary: PASS, BLOCKED, OWNER ACTION.
 
-**ENGINEERING ROADMAP COMPLETE — APACHE-2.0 SELECTED.** The owner has authorized
-PUBLIC SOURCE REPOSITORY publication after the licensed commit's local/hosted
-gates and final exposure audit. Visibility must be verified separately; it is not
-marked PASS in this pre-transition document. SOFTWARE RELEASE remains a separate
-owner decision: version promotion, tag, GitHub Release and registry publication
-are not authorized by the public-source transition.
+**PUBLIC SOURCE REPOSITORY — COMPLETE.** RepoLens is public on GitHub, Apache-2.0
+is active and engineering roadmap 0–14 is complete. **FIRST SOFTWARE RELEASE —
+NOT YET PERFORMED.** Version remains 0.1.0.dev0. Version promotion, tag, GitHub
+Release, registry publication and future release automation are separate owner
+decisions, not consequences of making the source public.
 
 RepoLens is licensed under [Apache License 2.0](../LICENSE). The canonical text and
 SPDX package metadata resolve the former owner-license blocker. Historical audit
@@ -36,7 +35,7 @@ paragraphs below record the state and evidence before this licensing transition.
 | Exact Phase 14 hosted matrix | PASS: `be672b2`, Quality 37515155025, all four jobs |
 | Owner-selected license | PASS: owner selected Apache-2.0; canonical root LICENSE and PEP 639 metadata |
 | Release version | OWNER ACTION: retain 0.1.0.dev0 until explicit version approval |
-| Repository visibility / contributions | OWNER AUTHORIZED, verification pending: public source after licensed exact-SHA CI; contributions follow Apache-2.0 terms |
+| Repository visibility / contributions | PASS: asadabbas717/RepoLens is public, default main; Apache-2.0 contributions; licensed public baseline bb3c0c0 |
 | Tag / GitHub Release | OWNER ACTION: none created |
 | Registry publication | OWNER ACTION: none; package name/registry availability and publication identity remain decisions |
 
@@ -46,7 +45,9 @@ Package name, development version, Python >=3.13 baseline, setuptools backend,
 src package discovery, console entry `repolens = repolens.cli:main` and py.typed
 remain appropriate. Existing installed metadata tests verify runtime requirements
 and version consistency. Minimal metadata is intentional: there is no authoritative
-author/contact/public docs/registry identity to add. The now-authoritative license
+author/contact/separate docs/registry identity to add. Public Repository and Issues
+URLs now point to the verified GitHub project; no author, email, docs or PyPI URL
+was invented. The now-authoritative license
 uses `license = "Apache-2.0"` and `license-files = ["LICENSE"]`; no deprecated
 table/classifier, attribution identity or repository URL was invented.
 
@@ -136,7 +137,10 @@ examples or deliberate rejection fixtures, not real owner data. This is bounded
 heuristic evidence, not proof that no conceivable secret exists. No third-party
 source/report was added and no optional repeat public scan was needed.
 
-## Owner-authorized publication sequence
+## Historical owner-authorized publication sequence
+
+The sequence below records the plan before the owner changed visibility. The
+completed transition and independent access verification follow in the next section.
 
 After the licensed commit's local checks and full exact-SHA CI pass, rerun the
 bounded secret/personal-data/history exposure audit. The authorized action is to
@@ -190,8 +194,46 @@ personal contact/account data or real credential. Ordinary Git authorship remain
 This is heuristic review, not an exhaustive guarantee. A final exposure audit
 still follows the licensing commit's green hosted matrix.
 
-Visibility is not yet marked PASS: GitHub CLI is unavailable in this environment,
-and the connected GitHub tool provides read access without administrative mutation.
-If that remains the case after green CI, the completion report must state
-LICENSED COMMIT READY / CI GREEN / MANUAL VISIBILITY CHANGE REQUIRED and provide
-the supported GitHub settings path. No permission workaround is authorized.
+At licensing-commit preparation, visibility was not yet marked PASS: GitHub CLI
+was unavailable and the connected tool provided read access without admin mutation.
+The corresponding completion report therefore stated
+LICENSED COMMIT READY / CI GREEN / MANUAL VISIBILITY CHANGE REQUIRED and provided
+the supported GitHub settings path. The owner subsequently performed the change;
+no permission workaround was used.
+
+## Public-source transition closure (2026-10-07)
+
+The owner changed asadabbas717/RepoLens visibility to public. Licensed public HEAD
+at the transition was `bb3c0c051395c89ac288f61c6e8171207400323c`; default branch
+remains main. All four jobs passed for that exact SHA in
+[Quality run 37528410790](https://github.com/asadabbas717/RepoLens/actions/runs/37528410790).
+Fresh anonymous REST access confirms public visibility and Apache-2.0 detection;
+credential-isolated HTTPS Git ls-remote returned that HEAD without a credential
+helper, prompting or ambient Git credentials. Public raw LICENSE is byte-identical
+to the canonical root file. This is public source publication, not a tagged/package
+release. The synchronization commit may advance main within this licensed lineage.
+
+No current-state exposure issue was identified; prior bounded history review
+remains qualified heuristic evidence with only known inert credential fixtures.
+No history rewriting, contribution bureaucracy, new feature or compatibility
+change was introduced. Optional repository description/topics remain manual
+polish because admin mutation tooling is unavailable; they are not release blockers.
+
+The 0.1.0 candidate has no identified correctness, security, installation, licensing
+or packaging blocker. Final candidate readiness requires the synchronization
+commit's own full local gates and exact hosted four-job matrix; the completion
+report records that final result. Known disclosed scope/resource limits are not
+new technical blockers. No version promotion, tag, GitHub Release or registry
+publication is performed by this pass.
+
+Synchronization local verification passed 1,213 cases with one existing skip on
+each Windows Python 3.13.15/3.14.7 environment (99.62% / 99.51% coverage). Ruff,
+strict mypy, Bandit, development dependency audit and builds passed; both artifacts
+expose the verified public URLs and canonical license. Fresh external wheel scans
+retain clean 100.00, poor 92.50, configured poor 96.25 and reduced non-Python 100.00;
+missing applicable Bandit still withholds the score. Reports remain deterministic.
+No current secret/personal/artifact exposure issue or technical defect was identified.
+Description/topics can be set manually via GitHub's About edit control; recommended
+description: "Static, evidence-based repository engineering-quality analysis for
+Python projects." Topics: python, static-analysis, code-quality, security,
+developer-tools, github-actions. No metadata mutation was performed by this pass.

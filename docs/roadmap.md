@@ -77,5 +77,8 @@ Phase 14 stabilizes and audits the existing product; see
 owner software-release decisions. Engineering roadmap 0–14 is complete: exact
 commit `be672b29ac79ff0c37d92ffa83615674cef3769f` passed all four jobs in
 [Quality run 37515155025](https://github.com/asadabbas717/RepoLens/actions/runs/37515155025).
-Apache-2.0 licensing and public source transition are authorized; version promotion,
-tags, GitHub Releases and registry publication are not. No Phase 15 is introduced.
+Apache-2.0 is active and public source transition is complete. Licensed public
+baseline `bb3c0c051395c89ac288f61c6e8171207400323c` passed all four jobs in
+[Quality run 37528410790](https://github.com/asadabbas717/RepoLens/actions/runs/37528410790).
+Version remains 0.1.0.dev0; version promotion, tags, GitHub Releases and registry
+publication are not performed. No Phase 15 is introduced.

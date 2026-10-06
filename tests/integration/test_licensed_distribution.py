@@ -33,6 +33,10 @@ def test_clean_build_includes_canonical_license_without_runtime_contract_changes
     )
     assert result.returncode == 0, result.stderr.decode("utf-8", errors="replace")
     canonical = (project / "LICENSE").read_bytes()
+    project_urls = {
+        "Repository, https://github.com/asadabbas717/RepoLens",
+        "Issues, https://github.com/asadabbas717/RepoLens/issues",
+    }
     prefix = "repolens-0.1.0.dev0"
     with zipfile.ZipFile(output / f"{prefix}-py3-none-any.whl") as wheel:
         info = f"{prefix}.dist-info/"
@@ -40,6 +44,7 @@ def test_clean_build_includes_canonical_license_without_runtime_contract_changes
         data = BytesParser().parsebytes(wheel.read(info + "METADATA"))
         assert data["License-Expression"] == "Apache-2.0"
         assert data.get_all("License-File") == ["LICENSE"]
+        assert set(data.get_all("Project-URL") or ()) == project_urls
         assert data["Version"] == "0.1.0.dev0"
         assert data.get_all("Requires-Dist") == ["PyYAML<7,>=6.0.3"]
         assert data["Requires-Python"] == ">=3.13"
@@ -54,7 +59,6 @@ def test_clean_build_includes_canonical_license_without_runtime_contract_changes
         metadata_stream = archive.extractfile(f"{prefix}/PKG-INFO")
         assert metadata_stream is not None
         with metadata_stream:
-            assert (
-                BytesParser().parsebytes(metadata_stream.read())["License-Expression"]
-                == "Apache-2.0"
-            )
+            source_metadata = BytesParser().parsebytes(metadata_stream.read())
+            assert source_metadata["License-Expression"] == "Apache-2.0"
+            assert set(source_metadata.get_all("Project-URL") or ()) == project_urls

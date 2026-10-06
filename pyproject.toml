@@ -15,6 +15,10 @@ dependencies = ["PyYAML>=6.0.3,<7"]
 [project.scripts]
 repolens = "repolens.cli:main"
 
+[project.urls]
+Repository = "https://github.com/asadabbas717/RepoLens"
+Issues = "https://github.com/asadabbas717/RepoLens/issues"
+
 [dependency-groups]
 dev = [
     "pytest>=8",

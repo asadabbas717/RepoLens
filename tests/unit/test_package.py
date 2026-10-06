@@ -34,6 +34,10 @@ def test_installed_distribution_has_apache_expression_and_canonical_license() ->
     package = distribution("repolens")
     assert package.metadata["License-Expression"] == "Apache-2.0"
     assert package.metadata.get_all("License-File") == ["LICENSE"]
+    assert set(package.metadata.get_all("Project-URL") or ()) == {
+        "Repository, https://github.com/asadabbas717/RepoLens",
+        "Issues, https://github.com/asadabbas717/RepoLens/issues",
+    }
     entries = tuple(
         item for item in package.files or () if item.as_posix().endswith("/licenses/LICENSE")
     )
