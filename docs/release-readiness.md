@@ -2,13 +2,21 @@
 
 This document records the Phase 14 pre-publication audit of development version
 `0.1.0.dev0`. The technical commit's exact hosted result must be recorded in the
-completion report after publication; a commit cannot embed its own SHA. No public
-release or license grant has occurred. Status vocabulary: PASS, BLOCKED, OWNER ACTION.
+completion report after publication; a commit cannot embed its own SHA. Phase 14
+subsequently passed all four jobs for `be672b29ac79ff0c37d92ffa83615674cef3769f` in
+[Quality run 37515155025](https://github.com/asadabbas717/RepoLens/actions/runs/37515155025).
+No software release has occurred. Status vocabulary: PASS, BLOCKED, OWNER ACTION.
 
-**NOT READY for public release — owner decisions remain outstanding.** Code
-readiness is separate from the decision to expose or redistribute the project.
+**ENGINEERING ROADMAP COMPLETE — APACHE-2.0 SELECTED.** The owner has authorized
+PUBLIC SOURCE REPOSITORY publication after the licensed commit's local/hosted
+gates and final exposure audit. Visibility must be verified separately; it is not
+marked PASS in this pre-transition document. SOFTWARE RELEASE remains a separate
+owner decision: version promotion, tag, GitHub Release and registry publication
+are not authorized by the public-source transition.
 
-Release blocker: owner must select and explicitly approve a license before public release / external redistribution.
+RepoLens is licensed under [Apache License 2.0](../LICENSE). The canonical text and
+SPDX package metadata resolve the former owner-license blocker. Historical audit
+paragraphs below record the state and evidence before this licensing transition.
 
 ## Evidence checklist
 
@@ -25,10 +33,10 @@ Release blocker: owner must select and explicitly approve a license before publi
 | Final self-scan / deterministic reports | PASS: 88.75 available, 907 reviewed observations; controlled complete/incomplete JSON repeats byte-identical |
 | Documentation consistency / local links | PASS: 32 Markdown files; local destinations exist; implemented/deferred claims and CLI examples reviewed |
 | Repository / history / security audit | PASS: 239 reachable historical blobs reviewed heuristically; fixture flags explained, no real secret/artifact identified; boundaries unchanged |
-| Exact Phase 14 hosted matrix | BLOCKED at document creation: requires final commit publication; completion report must name exact SHA/run and all four results |
-| Owner-selected license | OWNER ACTION: missing; no LICENSE/SPDX expression invented |
+| Exact Phase 14 hosted matrix | PASS: `be672b2`, Quality 37515155025, all four jobs |
+| Owner-selected license | PASS: owner selected Apache-2.0; canonical root LICENSE and PEP 639 metadata |
 | Release version | OWNER ACTION: retain 0.1.0.dev0 until explicit version approval |
-| Repository visibility / contributions | OWNER ACTION: keep private; no external contribution enablement |
+| Repository visibility / contributions | OWNER AUTHORIZED, verification pending: public source after licensed exact-SHA CI; contributions follow Apache-2.0 terms |
 | Tag / GitHub Release | OWNER ACTION: none created |
 | Registry publication | OWNER ACTION: none; package name/registry availability and publication identity remain decisions |
 
@@ -38,8 +46,9 @@ Package name, development version, Python >=3.13 baseline, setuptools backend,
 src package discovery, console entry `repolens = repolens.cli:main` and py.typed
 remain appropriate. Existing installed metadata tests verify runtime requirements
 and version consistency. Minimal metadata is intentional: there is no authoritative
-license/author/contact/public docs/registry identity to add. No classifiers or URLs
-were guessed and no packaging change is justified merely for aesthetics.
+author/contact/public docs/registry identity to add. The now-authoritative license
+uses `license = "Apache-2.0"` and `license-files = ["LICENSE"]`; no deprecated
+table/classifier, attribution identity or repository URL was invented.
 
 The sole runtime dependency remains PyYAML>=6.0.3,<7; the lock selects 6.0.3 with
 no additional runtime closure. Bandit 1.9.4 is optional trusted tooling. Development
@@ -129,9 +138,60 @@ source/report was added and no optional repeat public scan was needed.
 
 ## Owner-authorized publication sequence
 
-After final exact-SHA CI succeeds, the owner must choose/approve the license and
-then update LICENSE and corresponding metadata deliberately. Decide the release
-version and publication destination, review package-name availability/identity,
-approve visibility and contribution policy, then explicitly authorize tags/releases
-and any registry publication. Rebuild/reverify artifacts for that approved version.
-Passing technical checks does not substitute for these decisions.
+After the licensed commit's local checks and full exact-SHA CI pass, rerun the
+bounded secret/personal-data/history exposure audit. The authorized action is to
+change only asadabbas717/RepoLens visibility from private to public, then verify
+main, licensed HEAD, LICENSE/README and anonymous access. If no authenticated
+admin-capable tool is available, stop at the green licensed commit and ask the
+owner to use Settings → General → Danger Zone → Change repository visibility.
+Do not bypass authentication/permissions or infer visibility from authorization.
+
+The official LICENSE bytes were retrieved twice from
+[Apache's canonical text](https://www.apache.org/licenses/LICENSE-2.0.txt), with
+identical 11,358-byte content and SHA-256
+`cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30`.
+No custom NOTICE is required by any identified attribution, so none was added.
+No mass source headers or custom copyright owner/conditions were inserted.
+
+First release version, tags, GitHub Release, package-registry publication and
+future release automation still require separate explicit decisions. Rebuild and
+reverify artifacts for an approved release version; 0.1.0.dev0 stays unchanged.
+
+## Licensing transition verification (2026-10-07)
+
+The new licensing metadata and actual artifact contracts passed on Windows
+CPython 3.13.15 and 3.14.7: each collected 1,214 tests, with 1,213 passed and the
+existing real-symlink privilege case skipped. Combined statement/branch coverage
+was 99.62% / 99.51%. The small 3.14 coverage variation includes an unchanged
+external-process polling path, not a changed security control. Ruff format/lint,
+strict mypy (89 source/test files), Bandit and pip-audit passed. The audit found
+no known vulnerabilities and skipped only unpublished RepoLens. Thresholds,
+runtime dependencies and lock entries are unchanged.
+
+The wheel has 54 intended package/metadata entries; its dist-info/licenses/LICENSE
+matches root LICENSE byte-for-byte. METADATA and sdist PKG-INFO expose
+License-Expression: Apache-2.0; wheel metadata also declares License-File: LICENSE.
+The 68-member sdist includes root LICENSE and required build/source files. No Git,
+environment, cache, coverage or dogfood-report artifacts were admitted. A clean
+extracted-sdist rebuild produced identical wheel entry payloads.
+
+A fresh environment and working directory outside the checkout verified isolated
+site-packages imports, installed license/version metadata, --version/--help/scan
+--help, and only pip/PyYAML/RepoLens in the base environment. Bandit-absent Python
+scans remained UNSUPPORTED/incomplete/exit 1; non-Python remained available/exit 0.
+Adding supported Bandit 1.9.4 completed the unchanged clean 100.00, poor 92.50 and
+configured poor 96.25 outcomes. All formats and whole-byte JSON repeats passed;
+no target dependency was installed and no execution marker appeared.
+
+The pre-commit bounded history audit examined 247 reachable blobs and found only
+the seven previously reviewed fake credential-URL fixtures; no generated/private
+artifact paths were found. Current-file review found no unintended home paths,
+personal contact/account data or real credential. Ordinary Git authorship remains.
+This is heuristic review, not an exhaustive guarantee. A final exposure audit
+still follows the licensing commit's green hosted matrix.
+
+Visibility is not yet marked PASS: GitHub CLI is unavailable in this environment,
+and the connected GitHub tool provides read access without administrative mutation.
+If that remains the case after green CI, the completion report must state
+LICENSED COMMIT READY / CI GREEN / MANUAL VISIBILITY CHANGE REQUIRED and provide
+the supported GitHub settings path. No permission workaround is authorized.

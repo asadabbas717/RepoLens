@@ -37,7 +37,8 @@ Keep changes small enough to review and do not declare unavailable gates passed.
     full hosted matrix verified for `b495e84` in Quality run 37512872450.
 14. Release: all gates, audit, clean install, smoke test, docs and owner-selected license.
 
-Release blockers include license selection and any known critical security issue.
+The owner selected Apache-2.0 after technical completion. Any known critical
+security issue would still block publication; software-release decisions remain separate.
 Do not create placeholder analyzers or prematurely label a release 1.0.
 
 
@@ -73,4 +74,8 @@ in [dogfooding](dogfooding.md). All four hosted jobs passed for
 [Quality run 37512872450](https://github.com/asadabbas717/RepoLens/actions/runs/37512872450).
 Phase 14 stabilizes and audits the existing product; see
 [release readiness](release-readiness.md). Public release still requires explicit
-owner licensing/version/visibility/publication decisions.
+owner software-release decisions. Engineering roadmap 0–14 is complete: exact
+commit `be672b29ac79ff0c37d92ffa83615674cef3769f` passed all four jobs in
+[Quality run 37515155025](https://github.com/asadabbas717/RepoLens/actions/runs/37515155025).
+Apache-2.0 licensing and public source transition are authorized; version promotion,
+tags, GitHub Releases and registry publication are not. No Phase 15 is introduced.

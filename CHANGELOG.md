@@ -17,5 +17,6 @@ Initial development capability, version `0.1.0.dev0`:
 Documentation/Maintainability analysis, target dependency vulnerability auditing,
 private authentication and other-language code analysis are not implemented.
 Target code/tests/builds/workflows are never executed; target coverage is not measured.
-No release has occurred. Owner-selected licensing and publication decisions remain
-pending; this changelog grants no redistribution rights.
+Licensed under Apache-2.0. The owner authorized public source publication after
+the licensed commit passes all gates. No software release has occurred; version
+promotion, tags, GitHub Releases and package publication remain separate decisions.

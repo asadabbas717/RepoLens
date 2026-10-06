@@ -887,3 +887,33 @@ This records pre-publication local checks. The exact Phase 14 commit must still
 pass all four hosted jobs, with the SHA/run recorded in the completion report.
 Version remains 0.1.0.dev0; no license, visibility, tag, release or registry action
 was performed.
+
+## Phase 14 hosted closure and subsequent owner decisions
+
+All four Windows/Ubuntu Python 3.13/3.14 jobs passed for
+`be672b29ac79ff0c37d92ffa83615674cef3769f` in
+[Quality run 37515155025](https://github.com/asadabbas717/RepoLens/actions/runs/37515155025).
+Engineering roadmap 0–14 is technically complete. The owner subsequently selected
+Apache-2.0 and authorized public source visibility, sequenced after the licensing
+commit's own full gates and final exposure audit. Earlier license/visibility
+blocker text is historical, not the current owner decision. No release version,
+tag, GitHub Release, registry publication or release automation is authorized.
+
+## Apache-2.0 transition local verification (2026-10-07)
+
+Owner-selected Apache-2.0 is recorded by canonical root LICENSE and modern SPDX
+license/license-files metadata. Supported setuptools 84.0.0 builds this contract.
+New installed-license and isolated trusted-source-build regressions passed.
+Both Windows CPython 3.13.15 and 3.14.7 collected 1,214 cases: 1,213 passed, one
+existing privilege-dependent skip. Combined coverage was 99.62% / 99.51%.
+Locked sync (offline cache for sandbox index access), Ruff format/check, strict
+mypy (89 files), Bandit, pip-audit and source/wheel builds passed without changing
+thresholds or dependencies. pip-audit skipped only unpublished RepoLens and found
+no known vulnerabilities. Clean sdist rebuild and fresh external wheel installation
+verified canonical license bytes and optional-tool behavior. See
+[release readiness](release-readiness.md) for evidence and sequencing.
+
+Public source visibility requires this licensed commit's exact four-job hosted
+matrix and final exposure audit. Version, policy, JSON/configuration schemas,
+default plan, target non-execution and exit codes are unchanged. Public source
+authorization does not authorize a tag, software release or registry publication.

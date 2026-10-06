@@ -1,6 +1,6 @@
 """Verify the installed distribution contract rather than a source-path shortcut."""
 
-from importlib.metadata import entry_points, metadata, version
+from importlib.metadata import distribution, entry_points, metadata, version
 from importlib.resources import files
 
 import repolens
@@ -26,3 +26,19 @@ def test_installed_console_entry_point_is_declared() -> None:
 
 def test_installed_package_contains_public_typing_marker() -> None:
     assert files("repolens").joinpath("py.typed").is_file()
+
+
+def test_installed_distribution_has_apache_expression_and_canonical_license() -> None:
+    from pathlib import Path
+
+    package = distribution("repolens")
+    assert package.metadata["License-Expression"] == "Apache-2.0"
+    assert package.metadata.get_all("License-File") == ["LICENSE"]
+    entries = tuple(
+        item for item in package.files or () if item.as_posix().endswith("/licenses/LICENSE")
+    )
+    assert len(entries) == 1
+    assert (
+        package.locate_file(entries[0]).read_bytes()
+        == (Path(__file__).resolve().parents[2] / "LICENSE").read_bytes()
+    )

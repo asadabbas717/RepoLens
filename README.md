@@ -8,10 +8,11 @@ The development build is `0.1.0.dev0`; it is not a published release.
 ## Current status
 
 The implemented CLI/configuration/reporting product passed Phase 13 dogfooding and
-all four hosted Windows/Linux Python 3.13/3.14 jobs for `b495e84`. Phase 14 audits
-release readiness; see [readiness](docs/release-readiness.md) and
-[dogfooding](docs/dogfooding.md). The repository remains private and unreleased.
-An open-source license has not been selected; publication is an owner decision.
+all four hosted Windows/Linux Python 3.13/3.14 jobs through Phase 14 commit
+`be672b2`. Engineering roadmap 0–14 is complete; see
+[readiness](docs/release-readiness.md) and [dogfooding](docs/dogfooding.md).
+The owner selected Apache-2.0 and authorized public source publication after the
+licensed commit's checks pass. This remains unreleased development software.
 
 ## Implemented assessment scope
 
@@ -105,11 +106,15 @@ target dependencies, import target modules, run tests, or execute repository
 scripts. Detected tests are not executed coverage. Static evidence
 cannot establish runtime correctness or prove a repository is secure.
 
-## Contributing and license
+## Development and contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
-An open-source license has not yet been selected by the owner. Do not publish
-a release or assume redistribution rights until that decision is recorded.
 See [Unreleased changes](CHANGELOG.md) and the
-[owner-action checklist](docs/release-readiness.md). External contributions are
-not enabled before an explicit owner decision and licensing review.
+[owner-action checklist](docs/release-readiness.md). Intentionally submitted
+contributions follow the project's Apache-2.0 terms and engineering requirements.
+
+## License
+
+RepoLens is licensed under the Apache License 2.0. See [LICENSE](LICENSE).
+Public source publication is separate from version promotion, tags, GitHub Releases
+and package-registry publication; none of those software-release actions occurred.
