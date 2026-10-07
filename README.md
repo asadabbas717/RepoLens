@@ -4,7 +4,35 @@ RepoLens statically assesses Python Git repositories and language-independent
 repository hygiene and GitHub Actions signals. It produces deterministic findings
 with relative file/line evidence, recommendations and transparent score deductions.
 RepoLens `0.1.1` is a packaging-only follow-up to the first GitHub release, `0.1.0`.
-GitHub source remains the distribution channel; no PyPI upload has occurred.
+It is available from [PyPI](https://pypi.org/project/repolens-engineering/) as
+`repolens-engineering`.
+
+## Installation
+
+Python 3.13+ and Git are required. Install into your chosen Python environment:
+
+```bash
+python -m pip install repolens-engineering
+repolens --version
+repolens --help
+```
+
+| Name | Value |
+| --- | --- |
+| PyPI distribution | `repolens-engineering` |
+| Python package/import | `repolens` |
+| CLI command | `repolens` |
+
+From a Git working tree, start with:
+
+```bash
+repolens scan .
+```
+
+Python security analysis requires optional Bandit **1.9.4** in RepoLens's own
+environment. If it is missing, applicable security analysis is unsupported and
+the assessment is incomplete (exit 1), rather than receiving a misleading clean
+score. See [CLI installation](docs/cli.md) for optional-tool setup.
 
 ## Current status
 
@@ -12,13 +40,13 @@ The implemented CLI/configuration/reporting product passed Phase 13 dogfooding a
 all four hosted Windows/Linux Python 3.13/3.14 jobs through Phase 14 commit
 `be672b2`. Engineering roadmap 0–14 is complete; see
 [readiness](docs/release-readiness.md) and [dogfooding](docs/dogfooding.md).
-RepoLens is a public GitHub source repository licensed under Apache-2.0. The
-licensed public baseline `bb3c0c0` passed all four hosted jobs. The software remains
-version `0.1.1`. The original `v0.1.0` tag/release remains unchanged. The PyPI
-distribution is now named **repolens-engineering**; the Python import package and
-CLI command remain **repolens**. Analysis behavior and compatibility identifiers
-are unchanged. The prepared Trusted Publishing workflow is manual-only; uploading
-requires a separate owner-authorized run after the exact patch commit is green.
+RepoLens 0.1.1 is public on GitHub, licensed under Apache-2.0, and published on
+PyPI. The release source passed all four hosted Windows/Linux Python 3.13/3.14
+jobs. Production publication succeeded through GitHub Actions OIDC / PyPI Trusted
+Publishing in [run 37609131316](https://github.com/asadabbas717/RepoLens/actions/runs/37609131316);
+a fresh production installation and controlled scans passed. Publication remains
+manual and protected by owner approval. Analysis behavior and compatibility
+identifiers are unchanged. See [publishing](docs/publishing.md).
 
 ## Implemented assessment scope
 
@@ -122,6 +150,4 @@ contributions follow the project's Apache-2.0 terms and engineering requirements
 ## License
 
 RepoLens is licensed under the Apache License 2.0. See [LICENSE](LICENSE).
-The original software release is `0.1.0` on GitHub. Packaging patch `0.1.1` prepares
-the distinct distribution name without renaming imports/commands. PyPI installation
-is not advertised until publication succeeds. See [publishing](docs/publishing.md).
+The original `0.1.0` GitHub release and published `0.1.1` release remain immutable.

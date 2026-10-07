@@ -9,6 +9,19 @@ passes actual arguments and exits with the returned status.
 
 ## Install and syntax
 
+For end-user installation, Python 3.13+ and Git are required:
+
+```bash
+python -m pip install repolens-engineering
+repolens --version
+repolens --help
+repolens scan .
+```
+
+The [PyPI distribution](https://pypi.org/project/repolens-engineering/) is
+`repolens-engineering`; the import and CLI remain `repolens`. Use the following
+locked checkout workflow for development and contributing.
+
 From the development checkout in Git Bash on Windows:
 
 ```bash

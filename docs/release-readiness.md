@@ -14,20 +14,41 @@ is active and engineering roadmap 0–14 is complete. **FIRST SOFTWARE RELEASE �
 `6d9a6780db61f0b0fd84d6d0a0e44b6e62ba1e6e`, whose four jobs passed in
 [Quality 37541475326](https://github.com/asadabbas717/RepoLens/actions/runs/37541475326).
 The normal public [RepoLens 0.1.0 release](https://github.com/asadabbas717/RepoLens/releases/tag/v0.1.0)
-exists. **PACKAGING PATCH — 0.1.1 PREPARATION.** The distribution is now
+exists. **PACKAGING PATCH — 0.1.1 PUBLISHED.** The distribution is
 `repolens-engineering`; import/CLI remain `repolens`. Analysis behavior is unchanged.
-Its tag/release must wait for this exact preparation commit's complete hosted
-matrix. The owner confirmed the matching PyPI pending publisher; the GitHub `pypi`
+Its immutable tag and normal GitHub Release target the four-job-green source
+`aede95b6a5810920645eca48a6e845aaab37276a`. Production PyPI publication and fresh
+installation verification passed. The GitHub `pypi`
 environment requires owner approval, allows only `main`, and disables administrator
 bypass. Self-review is allowed so the sole owner can approve a deliberate run.
-See [publishing](publishing.md). Registry upload has not been performed and still
-requires explicit owner authorization. Older results below retain their versions.
+See [publishing](publishing.md). Future publications require separate explicit
+owner authorization. Older results below retain their versions.
 
 RepoLens is licensed under [Apache License 2.0](../LICENSE). The canonical text and
 SPDX package metadata resolve the former owner-license blocker. Historical audit
 paragraphs below record the state and evidence before this licensing transition.
 
-## Evidence checklist
+## Post-publication closure (2026-10-07)
+
+- **PyPI / registry publication: PASS.**
+  [repolens-engineering 0.1.1](https://pypi.org/project/repolens-engineering/)
+  is published with both expected wheel and sdist; authoritative metadata confirms
+  Apache-2.0, Python >=3.13, unchanged runtime requirements and project URLs.
+- **Trusted Publishing: PASS.**
+  [Publication run 37609131316](https://github.com/asadabbas717/RepoLens/actions/runs/37609131316)
+  passed build and publish after protected owner approval. OIDC authentication
+  succeeded, without a long-lived PyPI token. Both files have visible publish
+  attestations identifying the expected repository/workflow/environment.
+- **Production installation verification: PASS.** A fresh production-PyPI install
+  outside the repository verified package/import/CLI version 0.1.1 and controlled
+  scans with Bandit absent/present. Missing applicable security work correctly
+  prevented a numeric overall score. No publication retry occurred.
+- **Release integrity: PASS.** v0.1.1 remains on the exact source above, verified
+  by all four jobs in [Quality 37552186086](https://github.com/asadabbas717/RepoLens/actions/runs/37552186086).
+  The original v0.1.0 tag/release also remains unchanged. Documentation-only commits
+  may advance main without moving these immutable release tags or PyPI artifacts.
+
+## Historical evidence checklist (through 0.1.1 preparation)
 
 | Check | Status / evidence |
 | --- | --- |
