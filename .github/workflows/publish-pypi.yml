@@ -1,0 +1,153 @@
+name: Publish to PyPI
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing published release tag
+        required: true
+        default: v0.1.1
+        type: string
+      expected_sha:
+        description: Exact four-job-green commit the tag must resolve to
+        required: true
+        type: string
+permissions: {}
+concurrency:
+  group: pypi-publication
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read # Read the exact source commit's completed Quality matrix.
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+      version: ${{ steps.inspect.outputs.version }}
+      wheel: ${{ steps.inspect.outputs.wheel }}
+      sdist: ${{ steps.inspect.outputs.sdist }}
+      wheel_sha256: ${{ steps.inspect.outputs.wheel_sha256 }}
+      sdist_sha256: ${{ steps.inspect.outputs.sdist_sha256 }}
+    env:
+      REQUESTED_TAG: ${{ inputs.tag }}
+      EXPECTED_SHA: ${{ inputs.expected_sha }}
+    steps:
+      - name: Validate request and published source provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json, os, re
+          from urllib.request import Request, urlopen
+          def require(condition):
+              if not condition:
+                  raise SystemExit('Publication provenance validation failed')
+          tag, sha = os.environ['REQUESTED_TAG'], os.environ['EXPECTED_SHA']
+          require(re.fullmatch(r'v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)', tag))
+          require(re.fullmatch(r'[a-f0-9]{40}', sha))
+          require(os.environ['GITHUB_REPOSITORY'] == 'asadabbas717/RepoLens')
+          require(os.environ['GITHUB_REF'] == 'refs/heads/main')
+          base = 'https://api.github.com/repos/asadabbas717/RepoLens'
+          headers = {'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json'}
+          def get(path):
+              return json.loads(urlopen(Request(base + path, headers=headers), timeout=30).read())
+          obj = get('/git/ref/tags/' + tag)['object']
+          require(obj['type'] == 'tag')
+          obj = get('/git/tags/' + obj['sha'])['object']
+          require(obj['type'] == 'commit' and obj['sha'] == sha)
+          release = get('/releases/tags/' + tag)
+          require(release['tag_name'] == tag and not release['draft'] and not release['prerelease'])
+          require(release['published_at'])
+          runs = get('/actions/workflows/quality.yml/runs?head_sha=' + sha + '&event=push&per_page=100')['workflow_runs']
+          expected = {'quality (ubuntu-latest, 3.13)', 'quality (ubuntu-latest, 3.14)',
+                      'quality (windows-latest, 3.13)', 'quality (windows-latest, 3.14)'}
+          passed = False
+          for run in runs:
+              if run['head_sha'] != sha or run['status'] != 'completed' or run['conclusion'] != 'success':
+                  continue
+              jobs = get('/actions/runs/' + str(run['id']) + '/jobs')['jobs']
+              if len(jobs) == 4 and {j['name'] for j in jobs} == expected and all(
+                  j['head_sha'] == sha and j['status'] == 'completed' and j['conclusion'] == 'success' for j in jobs):
+                  passed = True
+                  break
+          require(passed)
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify checkout before running repository scripts
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          test "$(git rev-parse "refs/tags/$REQUESTED_TAG^{commit}")" = "$EXPECTED_SHA"
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - name: Validate source identity
+        run: python .github/scripts/validate_pypi.py source --tag "$REQUESTED_TAG" --sha "$EXPECTED_SHA"
+      - name: Install locked build tooling
+        run: |
+          python -m pip install uv==0.12.23
+          uv sync --locked --group dev
+      - name: Build exact tagged source
+        run: uv run --locked python -m build --no-isolation
+      - name: Inspect exact artifact metadata and contents
+        id: inspect
+        run: python .github/scripts/validate_pypi.py artifacts --tag "$REQUESTED_TAG" --sha "$EXPECTED_SHA"
+      - name: Fresh wheel installation outside the checkout
+        env:
+          WHEEL: ${{ steps.inspect.outputs.wheel }}
+          VERSION: ${{ steps.inspect.outputs.version }}
+        run: |
+          python -m venv "$RUNNER_TEMP/repolens-smoke"
+          uv pip install --python "$RUNNER_TEMP/repolens-smoke/bin/python" PyYAML==6.0.3 "dist/$WHEEL"
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/repolens-smoke/bin/python" -I - <<'PY'
+          import importlib.metadata as metadata, os, repolens
+          if metadata.version('repolens-engineering') != repolens.__version__ or repolens.__version__ != os.environ['VERSION']:
+              raise SystemExit('Installed namespace/version disagreement')
+          PY
+          test "$("$RUNNER_TEMP/repolens-smoke/bin/repolens" --version)" = "repolens $VERSION"
+          "$RUNNER_TEMP/repolens-smoke/bin/repolens" --help
+          "$RUNNER_TEMP/repolens-smoke/bin/repolens" scan --help
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        id: upload
+        with:
+          name: pypi-distributions
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/project/repolens-engineering/
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact_id }}
+          path: dist
+          merge-multiple: true
+      - name: Verify exact build-job payload before upload
+        env:
+          WHEEL: ${{ needs.build.outputs.wheel }}
+          SDIST: ${{ needs.build.outputs.sdist }}
+          WHEEL_SHA256: ${{ needs.build.outputs.wheel_sha256 }}
+          SDIST_SHA256: ${{ needs.build.outputs.sdist_sha256 }}
+        run: |
+          test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 2
+          printf '%s  %s\n' "$WHEEL_SHA256" "dist/$WHEEL" "$SDIST_SHA256" "dist/$SDIST" | sha256sum --check --strict -
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          packages-dir: dist/
+          verify-metadata: true
+          attestations: true

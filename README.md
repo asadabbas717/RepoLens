@@ -3,8 +3,8 @@
 RepoLens statically assesses Python Git repositories and language-independent
 repository hygiene and GitHub Actions signals. It produces deterministic findings
 with relative file/line evidence, recommendations and transparent score deductions.
-RepoLens `0.1.0` is the first public release. GitHub source is the distribution
-channel; no PyPI/package-registry publication has occurred.
+RepoLens `0.1.1` is a packaging-only follow-up to the first GitHub release, `0.1.0`.
+GitHub source remains the distribution channel; no PyPI upload has occurred.
 
 ## Current status
 
@@ -14,8 +14,11 @@ all four hosted Windows/Linux Python 3.13/3.14 jobs through Phase 14 commit
 [readiness](docs/release-readiness.md) and [dogfooding](docs/dogfooding.md).
 RepoLens is a public GitHub source repository licensed under Apache-2.0. The
 licensed public baseline `bb3c0c0` passed all four hosted jobs. The software remains
-version `0.1.0`. The owner approved Git tag `v0.1.0` and a normal GitHub Release
-after the exact release commit's hosted matrix passes. Registry publication is separate.
+version `0.1.1`. The original `v0.1.0` tag/release remains unchanged. The PyPI
+distribution is now named **repolens-engineering**; the Python import package and
+CLI command remain **repolens**. Analysis behavior and compatibility identifiers
+are unchanged. The prepared Trusted Publishing workflow is manual-only; uploading
+requires a separate owner-authorized run after the exact patch commit is green.
 
 ## Implemented assessment scope
 
@@ -119,5 +122,6 @@ contributions follow the project's Apache-2.0 terms and engineering requirements
 ## License
 
 RepoLens is licensed under the Apache License 2.0. See [LICENSE](LICENSE).
-The first software release is `0.1.0` on GitHub. Package-registry publication and
-future release automation remain separate owner decisions.
+The original software release is `0.1.0` on GitHub. Packaging patch `0.1.1` prepares
+the distinct distribution name without renaming imports/commands. PyPI installation
+is not advertised until publication succeeds. See [publishing](docs/publishing.md).

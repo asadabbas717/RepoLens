@@ -7,11 +7,12 @@ import repolens
 
 
 def test_installed_distribution_version_matches_public_version() -> None:
-    assert version("repolens") == repolens.__version__ == "0.1.0"
+    assert version("repolens-engineering") == repolens.__version__ == "0.1.1"
 
 
 def test_distribution_declares_python_baseline_and_only_reviewed_runtime_dependency() -> None:
-    package_metadata = metadata("repolens")
+    package_metadata = metadata("repolens-engineering")
+    assert package_metadata["Name"] == "repolens-engineering"
     assert package_metadata["Requires-Python"] == ">=3.13"
     assert package_metadata.get_all("Requires-Dist") == ["PyYAML<7,>=6.0.3"]
 
@@ -31,7 +32,7 @@ def test_installed_package_contains_public_typing_marker() -> None:
 def test_installed_distribution_has_apache_expression_and_canonical_license() -> None:
     from pathlib import Path
 
-    package = distribution("repolens")
+    package = distribution("repolens-engineering")
     assert package.metadata["License-Expression"] == "Apache-2.0"
     assert package.metadata.get_all("License-File") == ["LICENSE"]
     assert set(package.metadata.get_all("Project-URL") or ()) == {

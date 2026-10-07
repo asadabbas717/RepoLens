@@ -1,12 +1,17 @@
 """Build trusted RepoLens source in a fresh tree; inspect actual licensing artifacts."""
 
+import runpy
 import shutil
 import subprocess
 import sys
 import tarfile
 import zipfile
+from collections.abc import Callable
 from email.parser import BytesParser
 from pathlib import Path
+from typing import cast
+
+import pytest
 
 
 def test_clean_build_includes_canonical_license_without_runtime_contract_changes(
@@ -32,12 +37,24 @@ def test_clean_build_includes_canonical_license_without_runtime_contract_changes
         check=False,
     )
     assert result.returncode == 0, result.stderr.decode("utf-8", errors="replace")
+    validate = cast(
+        Callable[[Path, Path, str], tuple[Path, Path]],
+        runpy.run_path(str(project / ".github/scripts/validate_pypi.py"))["validate_artifacts"],
+    )
+    wheel_path, source_path = validate(source, output, "0.1.1")
+    assert wheel_path.name == "repolens_engineering-0.1.1-py3-none-any.whl"
+    assert source_path.name == "repolens_engineering-0.1.1.tar.gz"
+    extra = output / "unexpected.whl"
+    extra.write_bytes(b"unexpected")
+    with pytest.raises(ValueError, match="Exactly the expected"):
+        validate(source, output, "0.1.1")
+    extra.unlink()
     canonical = (project / "LICENSE").read_bytes()
     project_urls = {
         "Repository, https://github.com/asadabbas717/RepoLens",
         "Issues, https://github.com/asadabbas717/RepoLens/issues",
     }
-    prefix = "repolens-0.1.0"
+    prefix = "repolens_engineering-0.1.1"
     with zipfile.ZipFile(output / f"{prefix}-py3-none-any.whl") as wheel:
         info = f"{prefix}.dist-info/"
         assert wheel.read(info + "licenses/LICENSE") == canonical
@@ -45,7 +62,8 @@ def test_clean_build_includes_canonical_license_without_runtime_contract_changes
         assert data["License-Expression"] == "Apache-2.0"
         assert data.get_all("License-File") == ["LICENSE"]
         assert set(data.get_all("Project-URL") or ()) == project_urls
-        assert data["Version"] == "0.1.0"
+        assert data["Name"] == "repolens-engineering"
+        assert data["Version"] == "0.1.1"
         assert data.get_all("Requires-Dist") == ["PyYAML<7,>=6.0.3"]
         assert data["Requires-Python"] == ">=3.13"
         assert wheel.read("repolens/py.typed") == b""
@@ -61,4 +79,6 @@ def test_clean_build_includes_canonical_license_without_runtime_contract_changes
         with metadata_stream:
             source_metadata = BytesParser().parsebytes(metadata_stream.read())
             assert source_metadata["License-Expression"] == "Apache-2.0"
+            assert source_metadata["Name"] == "repolens-engineering"
+            assert source_metadata["Version"] == "0.1.1"
             assert set(source_metadata.get_all("Project-URL") or ()) == project_urls

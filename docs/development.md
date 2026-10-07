@@ -983,3 +983,36 @@ B404=5, B603=3, B108=1. Relative to the Phase 14 907-observation baseline, the
 tests: 21 assertions, one subprocess import and one trusted test-build launch.
 The LOW/LOW/LOW/MEDIUM rule deduction set remains 5/5/5/15, so score is unchanged.
 Version promotion adds no new analyzer/scoring condition or target execution.
+
+## Distribution-name packaging patch (2026-10-07)
+
+0.1.0 was released on GitHub at `6d9a6780db61f0b0fd84d6d0a0e44b6e62ba1e6e`
+after all four jobs passed in [Quality 37541475326](https://github.com/asadabbas717/RepoLens/actions/runs/37541475326).
+The immutable tag and release remain unchanged.
+
+0.1.1 prepares distribution `repolens-engineering` while preserving the `repolens`
+import/CLI, Apache-2.0 and sole PyYAML runtime dependency. Only the root project
+name/version changes in the lock. The private publication guard is also included
+in strict typing; it is outside the installed runtime package.
+
+Local Windows Python 3.13.15 and 3.14.7 each ran 1,236 cases: 1,235 passed and the
+existing real-symlink privilege case skipped. Combined coverage was 99.62% and
+99.58%. Locked sync, Ruff format/check (124 files), strict mypy (91 files), Bandit,
+pip-audit and wheel/sdist builds passed. Bandit had zero MEDIUM/HIGH findings;
+pip-audit found no known vulnerabilities, skipping only the unpublished project.
+These are local results, not hosted verification of the new preparation commit.
+Its tag and normal release must wait for all four exact-SHA Quality jobs.
+
+Built artifacts are `repolens_engineering-0.1.1-py3-none-any.whl` and
+`repolens_engineering-0.1.1.tar.gz`. Actual metadata/license/namespace inspection
+passed. A fresh environment and working directory outside the checkout verified
+installed distribution/import/version, CLI help/version, all controlled scan
+formats, optional Bandit absent/present behavior, policy scores and byte-identical
+JSON repeats. Publication workflow Bash/Python scripts parse without executing
+publication. Provenance tests reject wrong tag/SHA/name/runtime version; a clean
+build exercises artifact validation and rejects unexpected extra artifacts.
+
+The owner confirmed the exact pending PyPI publisher. The GitHub `pypi`
+environment has owner approval, main-only deployment and no administrator bypass.
+No PyPI upload or publishing workflow dispatch has been performed. See
+[publishing](publishing.md) for the separate manual authorization boundary.

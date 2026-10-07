@@ -10,12 +10,18 @@ PASS, BLOCKED, OWNER ACTION, OWNER AUTHORIZED.
 
 **PUBLIC SOURCE REPOSITORY — COMPLETE.** RepoLens is public on GitHub, Apache-2.0
 is active and engineering roadmap 0–14 is complete. **FIRST SOFTWARE RELEASE —
-0.1.0 APPROVED.** Package/runtime version is now 0.1.0. Tag v0.1.0 and normal public
-GitHub Release "RepoLens 0.1.0" are authorized only after the exact release commit's
-four hosted jobs pass. GitHub Release creation remains pending until performed;
-the completion report records its public URL and verified state. PyPI/registry
-publication is not performed or authorized. Older pre-release results below retain
-their original versions/dates for chronology.
+0.1.0 COMPLETE.** Immutable v0.1.0 targets
+`6d9a6780db61f0b0fd84d6d0a0e44b6e62ba1e6e`, whose four jobs passed in
+[Quality 37541475326](https://github.com/asadabbas717/RepoLens/actions/runs/37541475326).
+The normal public [RepoLens 0.1.0 release](https://github.com/asadabbas717/RepoLens/releases/tag/v0.1.0)
+exists. **PACKAGING PATCH — 0.1.1 PREPARATION.** The distribution is now
+`repolens-engineering`; import/CLI remain `repolens`. Analysis behavior is unchanged.
+Its tag/release must wait for this exact preparation commit's complete hosted
+matrix. The owner confirmed the matching PyPI pending publisher; the GitHub `pypi`
+environment requires owner approval, allows only `main`, and disables administrator
+bypass. Self-review is allowed so the sole owner can approve a deliberate run.
+See [publishing](publishing.md). Registry upload has not been performed and still
+requires explicit owner authorization. Older results below retain their versions.
 
 RepoLens is licensed under [Apache License 2.0](../LICENSE). The canonical text and
 SPDX package metadata resolve the former owner-license blocker. Historical audit
@@ -40,8 +46,8 @@ paragraphs below record the state and evidence before this licensing transition.
 | Owner-selected license | PASS: owner selected Apache-2.0; canonical root LICENSE and PEP 639 metadata |
 | Release version | PASS: owner approved 0.1.0; package/runtime/lock updated consistently |
 | Repository visibility / contributions | PASS: asadabbas717/RepoLens is public, default main; Apache-2.0 contributions; licensed public baseline bb3c0c0 |
-| Tag / GitHub Release | OWNER AUTHORIZED: v0.1.0 / RepoLens 0.1.0; pending exact release-SHA CI and publication |
-| Registry publication | OWNER ACTION: none; package name/registry availability and publication identity remain decisions |
+| Tag / GitHub Release | PASS: immutable v0.1.0 and normal public release; v0.1.1 awaits exact preparation-SHA hosted CI |
+| Registry publication | OWNER ACTION: repolens-engineering pending publisher confirmed; protected pypi environment verified; upload not performed |
 
 ## Preserved contracts and metadata
 

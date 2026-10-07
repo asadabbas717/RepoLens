@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.1.1 - 2026-10-07
+
+Packaging/publication compatibility patch:
+
+- Distribution name changes to `repolens-engineering`; import package and CLI stay `repolens`.
+- No analyzer, scoring, policy, schema or CLI behavior changes; Apache-2.0 is unchanged.
+- Manual, protected-environment PyPI Trusted Publishing infrastructure is prepared.
+- No registry upload is performed by release preparation; `v0.1.0` remains immutable.
+
 ## 0.1.0 - 2026-10-07
 
 First public release on GitHub:

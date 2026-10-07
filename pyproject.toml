@@ -3,8 +3,8 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "repolens"
-version = "0.1.0"
+name = "repolens-engineering"
+version = "0.1.1"
 description = "Evidence-based repository engineering-quality analysis"
 readme = "README.md"
 license = "Apache-2.0"
@@ -48,7 +48,7 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 [tool.mypy]
 python_version = "3.13"
 strict = true
-files = ["src", "tests"]
+files = ["src", "tests", ".github/scripts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
