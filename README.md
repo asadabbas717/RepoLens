@@ -3,6 +3,13 @@
 RepoLens statically assesses Python Git repositories and language-independent
 repository hygiene and GitHub Actions signals. It produces deterministic findings
 with relative file/line evidence, recommendations and transparent score deductions.
+**Target code is never executed:** RepoLens does not import target modules, install
+target dependencies, or run target tests, builds, scripts, or workflows.
+
+[Architecture](docs/architecture.md) · [Scoring](docs/scoring.md) ·
+[Reports](docs/reporting.md) · [Contributing](CONTRIBUTING.md) ·
+[Security](SECURITY.md) · [Releases](https://github.com/asadabbas717/RepoLens/releases)
+
 RepoLens `0.1.1` is a packaging-only follow-up to the first GitHub release, `0.1.0`.
 It is available from [PyPI](https://pypi.org/project/repolens-engineering/) as
 `repolens-engineering`.
@@ -23,6 +30,8 @@ repolens --help
 | Python package/import | `repolens` |
 | CLI command | `repolens` |
 
+## Quick start
+
 From a Git working tree, start with:
 
 ```bash
@@ -33,6 +42,45 @@ Python security analysis requires optional Bandit **1.9.4** in RepoLens's own
 environment. If it is missing, applicable security analysis is unsupported and
 the assessment is incomplete (exit 1), rather than receiving a misleading clean
 score. See [CLI installation](docs/cli.md) for optional-tool setup.
+
+## Example assessment
+
+The owned `poor-python` fixture produced this assessment during the
+[6 October 2026 validation](docs/dogfooding.md#controlled-default-scenarios),
+using development version 0.1.0.dev0 and Bandit 1.9.4. This is a compact
+summary of recorded results, not a new scan or verbatim console transcript.
+
+| Score | Value |
+| --- | --- |
+| Overall (available) | 92.50 |
+| Code quality / testing / security | 90 / 100 / 90 |
+| Repository hygiene / CI/CD | 100 / 90 |
+
+One finding from the [inert fixture](tests/integration/dogfood_cases.py):
+
+- Finding ID: `python-static:PY001:44b2e2ef7ae3cc9a5563a1c106200523096d1fb059138cb881ed139f0dc8b382`
+- Rule / severity: `PY001` / `low` — Bare except handler
+- Evidence: `app.py:6` — Bare except handler observed in the AST
+- Recommendation: Prefer the specific exception types intended here; if catching every exception is deliberate, retain that behavior knowingly.
+
+The full scan retained eight findings. A score is a static observation, not
+correctness or security certification. See [report formats](docs/reporting.md)
+and [scoring](docs/scoring.md) for exact semantics.
+
+To produce JSON or a standalone HTML report:
+
+```bash
+repolens scan . --format json
+repolens scan . --format html --output repolens-report.html
+```
+
+HTML requires a new output path and never overwrites an existing file.
+
+## Architecture
+
+[Architecture → docs/architecture.md](docs/architecture.md) describes the CLI,
+acquisition infrastructure, immutable domain, orchestration, analyzers, scoring,
+reporting, and explicit configuration boundaries.
 
 ## Current status
 
